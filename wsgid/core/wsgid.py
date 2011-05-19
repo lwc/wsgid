@@ -147,6 +147,8 @@ class Wsgid(object):
       if header[0] in ('X', 'x'):
         environ[header] = str(value)
       else:
+        # Change HTTP_ headers to CGI-like formatting
+        header = header.upper().replace('-','_')
         environ['HTTP_%s' % header] = str(value)
 
     return environ
