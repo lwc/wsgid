@@ -1,6 +1,6 @@
 #encoding: utf-8
 
-from wsgid import __version__, __progname__
+from wsgid import __version__, __progname__, __description__
 
 
 options = []
@@ -8,21 +8,26 @@ BOOL, STRING, LIST, INT = range(4)
 
 TYPES = {INT: 'int'}
 
+
+
+
 def parse_args():
   import platform
   pyversion = platform.python_version()
   if pyversion < '2.7':
-    import optparse
-
-    optparser = optparse.OptionParser(prog=__progname__, description='A complete WSGI environment for mongrel2 handlers',\
+    optparser = _create_optparse(prog=__progname__, description=__description__,\
                                       version="%s" % __version__)
+    (opts, args) = optparser.parse_args()
+    return opts
+
+def _create_optparse(prog, description, version):
+    import optparse
+    optparser = optparse.OptionParser(prog=prog, description=description, version=version)
     for opt in options:
       optparser.add_option(opt.name, help = opt.help, \
                            type = opt.type, action = opt.action, \
                            dest = opt.dest, default = opt.default_value)
-
-    (opts, args) = optparser.parse_args()
-    return opts
+    return optparser
 
 class CommandLineOption(object):
 
