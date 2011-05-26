@@ -109,6 +109,7 @@ class Cli(object):
   def _parse_options(self):
     options = parser.parse_args()
     options.app_path = self._full_path(options.app_path)
+    options.envs = {}
     
     if options.app_path:
       # Check the existence of app-path/wsgid.json, if yes use it

@@ -75,6 +75,11 @@ class CliTest(unittest.TestCase):
     abspath = os.path.abspath(os.getcwd())
     self.assertEquals(opt['chroot_directory'], abspath)
 
+  def test_parse_workers_as_integer(self):
+    sys.argv[1:] = ['--workers=3']
+    opts = parser.parse_args()
+    self.assertTrue(type(int), opts.workers)
+
   def _parse(self, *opts):
     sys.argv[1:] = opts
     return self.cli._create_daemon_options(parser.parse_args())
