@@ -2,7 +2,6 @@
 
 import unittest
 from wsgid.core import Wsgid
-from wsgid.test import simple_fork
 
 import os
 import urllib2

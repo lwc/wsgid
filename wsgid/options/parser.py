@@ -16,9 +16,15 @@ def parse_args():
   pyversion = platform.python_version()
   if pyversion < '2.7':
     optparser = _create_optparse(prog=__progname__, description=__description__,\
-                                      version="%s" % __version__)
+                                      version= __version__)
     (opts, args) = optparser.parse_args()
     return opts
+  else:
+    import argparse
+    parser = argparse.ArgumentParser(prog=__progname__, description=__description__, version=__version__)
+    for opt in options:
+      parser.add_argument(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
+    return parser.parse_args()
 
 def _create_optparse(prog, description, version):
     import optparse
