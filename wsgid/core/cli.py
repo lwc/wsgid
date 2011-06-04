@@ -71,6 +71,7 @@ class Cli(object):
       import traceback
       exc = sys.exc_info()
       self.log.info("".join(traceback.format_exception(exc[0], exc[1], exc[2])))
+      self._remove_pid(os.getpid(), self.MASTER)
       sys.exit(1)
 
   def _write_pid(self, pid, pid_type):
