@@ -106,6 +106,8 @@ Note that any options specified in the config file will overwrite the same optio
 
   $ wsgid --app-path=/path/to/wsgid-app-folder/
 
+.. _env-vars:
+
 Addindg Environment Variables to your App
 *****************************************
 
