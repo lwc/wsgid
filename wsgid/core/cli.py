@@ -4,8 +4,10 @@ import sys
 import logging
 import os
 
+from . import get_main_logger, set_main_logger
+from command import run_command
+from ..commands import *
 from ..options import parser
-from ..core import get_main_logger, set_main_logger
 
 import plugnplay
 import daemon
@@ -25,15 +27,18 @@ class Cli(object):
   def validate_input_params(self, app_path, recv, send, wsgi_app):
     if not app_path and not wsgi_app:
       raise Exception("--app-path is mandatory when --wsgi-app is not passed\n")
-    if app_path and not self._full_path(app_path):
-      raise Exception("path {0} does not exist.\n".format(abs_path))
+    if app_path and not os.path.exists(app_path):
+      raise Exception("path {0} does not exist.\n".format(app_path))
     if not recv:
       raise Exception("Recv socket is mandatory\n")
     if not send:
       raise Exception("Send socker is mandatory\n")
 
   def run(self):
-    options = self._parse_options()
+    if run_command():
+      sys.exit(0)
+
+    options = parser.parse_options()
     self.validate_input_params(app_path=options.app_path,\
         recv=options.recv, send=options.send,\
         wsgi_app=options.wsgi_app)
@@ -107,45 +112,7 @@ class Cli(object):
     if not os.path.exists(path):
       os.mkdir(path, 0700)
 
-  def _parse_options(self):
-    options = parser.parse_args()
-    options.app_path = self._full_path(options.app_path)
-    options.envs = {}
-    
-    if options.app_path:
-      # Check the existence of app-path/wsgid.json, if yes use it
-      # instead of command line options
-      filepath = os.path.join(options.app_path, 'wsgid.json')
-      if os.path.exists(filepath):
-        try:
-          import simplejson as json
-        except:
-          # Fallback to python's built-in
-          import json
-        json_cfg = json.loads(file(filepath).read())
 
-        options.send = self._return_str(json_cfg.setdefault('send', options.send))
-        options.recv = self._return_str(json_cfg.setdefault('recv', options.recv))
-        options.debug = self._return_bool(json_cfg.setdefault('debug', options.debug))
-        options.workers = int(json_cfg.setdefault('workers', options.workers))
-        options.keep_alive = self._return_bool(json_cfg.setdefault('keep_alive', options.keep_alive))
-        options.wsgi_app = self._return_str(json_cfg.setdefault('wsgi_app', options.wsgi_app))
-        options.nodaemon = self._return_str(json_cfg.setdefault('nodaemon', options.nodaemon))
-        options.chroot = self._return_bool(json_cfg.setdefault('chroot', options.chroot))
-        options.envs = json_cfg.setdefault('envs', {})
-
-    return options
-
-
-  def _return_bool(self, option):
-    if option and option.lower() == 'true':
-      return True
-    return False
-
-  def _return_str(self, option):
-    if option:
-      return str(option)
-    return option
 
   '''
     This is the SIGTERM handler of the master process.
@@ -203,23 +170,19 @@ class Cli(object):
     daemon.update({'uid': os.getuid(), 'gid': os.getgid()})
 
     if options.app_path:
-      full_path = self._full_path(options.app_path)
+      full_path = options.app_path
       stat = os.stat(full_path)
       daemon.update({'uid': stat.st_uid,
                      'gid': stat.st_gid})
 
       if options.chroot:
-        full_path = self._full_path(options.app_path)
+        full_path = options.app_path
         stat = os.stat(full_path)
         daemon.update({'chroot_directory': full_path,
                        'uid': stat.st_uid,
                        'gid': stat.st_gid})
     return daemon
 
-  def _full_path(self, path=None):
-    if path:
-      return os.path.abspath(os.path.expanduser(path))
-    return path
 
   def _normalize_path(self, options):
     if options.chroot:

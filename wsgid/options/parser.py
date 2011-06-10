@@ -1,7 +1,7 @@
 #encoding: utf-8
 
 from wsgid import __version__, __progname__, __description__
-
+import os
 
 options = []
 BOOL, STRING, LIST, INT = range(4)
@@ -11,7 +11,7 @@ TYPES = {INT: 'int'}
 
 
 
-def parse_args():
+def _parse_args():
   import platform
   pyversion = platform.python_version()
   if pyversion < '2.7':
@@ -120,5 +120,50 @@ add_option('recv', \
 add_option(name='send', \
     help="TCP socket used to return data to mongrel2. Format is IP:Port",\
     dest="send")
+
+
+def parse_options():
+  options = _parse_args()
+  options.app_path = _full_path(options.app_path)
+  options.envs = {}
+
+  if options.app_path:
+    # Check the existence of app-path/wsgid.json, if yes use it
+    # instead of command line options
+    filepath = os.path.join(options.app_path, 'wsgid.json')
+    if os.path.exists(filepath):
+      try:
+        import simplejson as json
+      except:
+        # Fallback to python's built-in
+        import json
+      json_cfg = json.loads(file(filepath).read())
+
+      options.send = _return_str(json_cfg.setdefault('send', options.send))
+      options.recv = _return_str(json_cfg.setdefault('recv', options.recv))
+      options.debug = _return_bool(json_cfg.setdefault('debug', options.debug))
+      options.workers = int(json_cfg.setdefault('workers', options.workers))
+      options.keep_alive = _return_bool(json_cfg.setdefault('keep_alive', options.keep_alive))
+      options.wsgi_app = _return_str(json_cfg.setdefault('wsgi_app', options.wsgi_app))
+      options.nodaemon = _return_str(json_cfg.setdefault('nodaemon', options.nodaemon))
+      options.chroot = _return_bool(json_cfg.setdefault('chroot', options.chroot))
+      options.envs = json_cfg.setdefault('envs', {})
+
+  return options
+
+def _return_bool(option):
+  if option and option.lower() == 'true':
+    return True
+  return False
+
+def _return_str(option):
+  if option:
+    return str(option)
+  return option
+
+def _full_path(path=None):
+  if path:
+    return os.path.abspath(os.path.expanduser(path))
+  return path
 
 
