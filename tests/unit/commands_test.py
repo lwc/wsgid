@@ -38,6 +38,19 @@ class CommandInitTest(unittest.TestCase):
     self.init.run(self.opt)
     self.assertTrue(os.path.exists("./newapp/app"), "Did not create app folder")
 
+  '''
+   Checks there is no problem if we run "init" on an already
+   inited path
+  '''
+  def test_init_and_already_inited_path(self):
+    self.init.run(FakeOptions(app_path="./newapp"))
+    os.system("rm -rf newapp/pid")
+    self.init.run(FakeOptions(app_path="./newapp"))
+    self.assertTrue(os.path.exists("./app-path/app"))
+    self.assertTrue(os.path.exists("./app-path/logs"))
+    self.assertTrue(os.path.exists("./app-path/pid"))
+    self.assertTrue(os.path.exists("./app-path/pid/master"))
+    self.assertTrue(os.path.exists("./app-path/pid/worker"))
 
 class CommandConfigTest(unittest.TestCase):
 

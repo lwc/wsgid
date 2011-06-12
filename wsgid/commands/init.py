@@ -13,9 +13,13 @@ class CommandInit(Plugin):
 
   def run(self, options):
     print "Initializing wsgid app folder in {0}...".format(options.app_path)
-    os.mkdir(options.app_path)
-    os.mkdir(os.path.join(options.app_path, 'pid'))
-    os.mkdir(os.path.join(options.app_path, 'pid/master'))
-    os.mkdir(os.path.join(options.app_path, 'pid/worker'))
-    os.mkdir(os.path.join(options.app_path, 'app'))
-    os.mkdir(os.path.join(options.app_path, 'logs'))
+    self._create_if_not_exist(options.app_path)
+    self._create_if_not_exist(os.path.join(options.app_path, 'pid'))
+    self._create_if_not_exist(os.path.join(options.app_path, 'pid/master'))
+    self._create_if_not_exist(os.path.join(options.app_path, 'pid/worker'))
+    self._create_if_not_exist(os.path.join(options.app_path, 'app'))
+    self._create_if_not_exist(os.path.join(options.app_path, 'logs'))
+
+  def _create_if_not_exist(self, path):
+    if not os.path.exists(path):
+      os.mkdir(path)
