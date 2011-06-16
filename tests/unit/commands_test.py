@@ -60,7 +60,10 @@ class CommandConfigTest(unittest.TestCase):
   def setUp(self):
     self.config = CommandConfig()
     self.init = CommandInit()
-    self.opt = FakeOptions(app_path="./newapp")
+    self.opt = FakeOptions(app_path="./newapp", wsgi_app="app.frontends.wsgi.application",\
+                      debug=True, no_daemon=True, workers=8, keep_alive=True, chroot=True,\
+                      recv="tcp://127.0.0.1:7000", send="tcp://127.0.0.1:7001")
+
     os.system("rm -rf ./newapp/")
     self.init.run(self.opt)
 
@@ -68,8 +71,7 @@ class CommandConfigTest(unittest.TestCase):
    if ${app-path}/wsgid.json does not exists, create
   '''
   def test_create_json_if_not_exist(self):
-    opt = FakeOptions(app_path="./newapp", recv="")
-    self.config.run(opt)
+    self.config.run(self.opt)
     self.assertTrue(os.path.exists("newapp/wsgid.json"))
 
   '''
@@ -79,15 +81,32 @@ class CommandConfigTest(unittest.TestCase):
   def test_override_option(self):
     # Write an config file so we can override some options
     f = file("./newapp/wsgid.json", "w+")
-    simplejson.dump({"recv": "tcp://127.0.0.1:3000", "debug": "True"}, f)
+    simplejson.dump({"recv": "tcp://127.0.0.1:3000", "debug": "True", "workers": "8", "chroot": "True"}, f)
     f.close()
 
-    opt = FakeOptions(recv="tcp://127.0.0.1:4000", app_path="./newapp")
-    self.config.run(opt)
+    self.opt.recv ="tcp://127.0.0.1:4000"
+    self.opt.workers = 8
+    self.opt.chroot = None
+    self.config.run(self.opt)
     
     h = simplejson.loads(file("./newapp/wsgid.json", "r+").read())
     self.assertEquals("tcp://127.0.0.1:4000", h['recv'])
-    self.assertEquals("True", h['debug'])
+    self.assertEquals(True, h['debug'])
+    self.assertEquals(8, h['workers'])
+    self.assertEquals(True, h['chroot'])
+
 
   def test_create_all_options(self):
-    self.fail()
+    opt = FakeOptions(app_path="./newapp", wsgi_app="app.frontends.wsgi.application",\
+                      debug=True, no_daemon=True, workers=8, keep_alive=True, chroot=True,\
+                      recv="tcp://127.0.0.1:7000", send="tcp://127.0.0.1:7001")
+    self.config.run(opt)
+    h = simplejson.loads(file("./newapp/wsgid.json", "r+").read())
+    self.assertEquals("app.frontends.wsgi.application", h['wsgi_app'])
+    self.assertEquals(True, h['debug'])
+    self.assertEquals(True, h['no_daemon'])
+    self.assertEquals(8, h['workers'])
+    self.assertEquals(True, h['keep_alive'])
+    self.assertEquals(True, h['chroot'])
+    self.assertEquals("tcp://127.0.0.1:7000", h['recv'])
+    self.assertEquals("tcp://127.0.0.1:7001", h['send'])
