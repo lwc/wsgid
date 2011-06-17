@@ -19,14 +19,14 @@ class CommandConfig(Plugin):
       cfg_values = simplejson.loads(s)
 
     # Copy the values
-    cfg_values['wsgi_app'] = options.wsgi_app
-    cfg_values['debug'] = options.debug
-    cfg_values['no_daemon'] = options.no_daemon
-    cfg_values['workers'] = options.workers
-    cfg_values['keep_alive'] = options.keep_alive
-    cfg_values['chroot'] = options.chroot
-    cfg_values['recv'] = options.recv
-    cfg_values['send'] = options.send
+    self._override_if_not_none('wsgi_app', cfg_values, options.wsgi_app)
+    self._override_if_not_none('debug', cfg_values, options.debug)
+    self._override_if_not_none('no_daemon', cfg_values, options.no_daemon)
+    self._override_if_not_none('workers', cfg_values, options.workers)
+    self._override_if_not_none('keep_alive', cfg_values, options.keep_alive)
+    self._override_if_not_none('chroot', cfg_values, options.chroot)
+    self._override_if_not_none('recv', cfg_values, options.recv)
+    self._override_if_not_none('send', cfg_values, options.send)
     
     # Rewrite the config file
     f.seek(0)
@@ -38,3 +38,7 @@ class CommandConfig(Plugin):
     if os.path.exists(path):
       return file(path, "r+")
     return file(path, "w+")
+
+  def _override_if_not_none(self, opt_name, dest, value):
+    if value:
+      dest[opt_name] = value

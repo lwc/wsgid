@@ -93,7 +93,7 @@ class CommandConfigTest(unittest.TestCase):
     self.assertEquals("tcp://127.0.0.1:4000", h['recv'])
     self.assertEquals(True, h['debug'])
     self.assertEquals(8, h['workers'])
-    self.assertEquals(True, h['chroot'])
+    self.assertEquals("True", h['chroot'])
 
 
   def test_create_all_options(self):
