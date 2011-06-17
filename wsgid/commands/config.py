@@ -21,7 +21,6 @@ class CommandConfig(Plugin):
     # Copy the values
     self._override_if_not_none('wsgi_app', cfg_values, options.wsgi_app)
     self._override_if_not_none('debug', cfg_values, options.debug)
-    self._override_if_not_none('no_daemon', cfg_values, options.no_daemon)
     self._override_if_not_none('workers', cfg_values, options.workers)
     self._override_if_not_none('keep_alive', cfg_values, options.keep_alive)
     self._override_if_not_none('chroot', cfg_values, options.chroot)
