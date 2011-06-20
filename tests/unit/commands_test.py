@@ -104,7 +104,6 @@ class CommandConfigTest(unittest.TestCase):
     h = simplejson.loads(file("./newapp/wsgid.json", "r+").read())
     self.assertEquals("app.frontends.wsgi.application", h['wsgi_app'])
     self.assertEquals(True, h['debug'])
-    self.assertEquals(True, h['no_daemon'])
     self.assertEquals(8, h['workers'])
     self.assertEquals(True, h['keep_alive'])
     self.assertEquals(True, h['chroot'])

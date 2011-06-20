@@ -152,7 +152,7 @@ def parse_options():
   return options
 
 def _return_bool(option):
-  if option and option.lower() == 'true':
+  if option and str(option).lower() == 'true':
     return True
   return False
 
