@@ -30,7 +30,7 @@ class CommandConfig(Plugin):
     # Rewrite the config file
     f.seek(0)
     f.truncate()
-    simplejson.dump(cfg_values, f)
+    simplejson.dump(cfg_values, f, indent="  ")
     f.close()
 
   def _open_config_file(self, path):
