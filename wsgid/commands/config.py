@@ -40,4 +40,4 @@ class CommandConfig(Plugin):
 
   def _override_if_not_none(self, opt_name, dest, value):
     if value:
-      dest[opt_name] = value
+      dest[opt_name] = str(value)

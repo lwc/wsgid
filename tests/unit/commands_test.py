@@ -75,8 +75,8 @@ class CommandConfigTest(unittest.TestCase):
     self.assertTrue(os.path.exists("newapp/wsgid.json"))
 
   '''
-   If an options already exists in the json config file
-   and is passed on the command line, it must be overwritten
+   An option passed on the command line, overrides the same option in the
+   config file.
   '''
   def test_override_option(self):
     # Write an config file so we can override some options
@@ -84,16 +84,20 @@ class CommandConfigTest(unittest.TestCase):
     simplejson.dump({"recv": "tcp://127.0.0.1:3000", "debug": "True", "workers": "8", "chroot": "True"}, f)
     f.close()
 
+    # Here we override some options
     self.opt.recv ="tcp://127.0.0.1:4000"
     self.opt.workers = 8
     self.opt.chroot = None
+
+    # Run the config command
     self.config.run(self.opt)
     
+    # Check that the options passed on the command line are the new config options
     h = simplejson.loads(file("./newapp/wsgid.json", "r+").read())
     self.assertEquals("tcp://127.0.0.1:4000", h['recv'])
-    self.assertEquals(True, h['debug'])
-    self.assertEquals(8, h['workers'])
-    self.assertEquals("True", h['chroot'])
+    self.assertEquals("True", h['debug'])
+    self.assertEquals("8", h['workers'])
+    self.assertEquals("True", h['chroot']) # An option nos passed on the command line should remain on the config file
 
 
   def test_create_all_options(self):
@@ -103,9 +107,25 @@ class CommandConfigTest(unittest.TestCase):
     self.config.run(opt)
     h = simplejson.loads(file("./newapp/wsgid.json", "r+").read())
     self.assertEquals("app.frontends.wsgi.application", h['wsgi_app'])
-    self.assertEquals(True, h['debug'])
-    self.assertEquals(8, h['workers'])
-    self.assertEquals(True, h['keep_alive'])
-    self.assertEquals(True, h['chroot'])
+    self.assertEquals("True", h['debug'])
+    self.assertEquals("8", h['workers'])
+    self.assertEquals("True", h['keep_alive'])
+    self.assertEquals("True", h['chroot'])
     self.assertEquals("tcp://127.0.0.1:7000", h['recv'])
     self.assertEquals("tcp://127.0.0.1:7001", h['send'])
+
+  '''
+    We have to be able to disable a boolean option.
+    Maybe just don't pass it to the command line could be a good choice
+    Maybe we could make it possible to command to create aditional parser options,
+      this wat config command could add a --no-debug option
+  '''
+  def test_disable_boolean_option(self):
+    self.fail()
+
+  '''
+   Since workers defaults to 1 (this is hardcoded into the parser)
+   this default is overiding the option that is passed to config run() method.
+  '''
+  def test_change_workers_option(self):
+    self.fail()
