@@ -8,6 +8,9 @@ class CommandInit(Plugin):
 
   implements = [ICommand]
 
+  def command_name(self):
+    return 'init'
+
   def name_matches(self, cname):
     return "init" == cname
 
@@ -19,6 +22,9 @@ class CommandInit(Plugin):
     self._create_if_not_exist(os.path.join(options.app_path, 'pid/worker'))
     self._create_if_not_exist(os.path.join(options.app_path, 'app'))
     self._create_if_not_exist(os.path.join(options.app_path, 'logs'))
+
+  def extra_options(self):
+    return []
 
   def _create_if_not_exist(self, path):
     if not os.path.exists(path):

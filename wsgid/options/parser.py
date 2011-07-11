@@ -3,6 +3,8 @@
 from wsgid import __version__, __progname__, __description__
 import os
 
+import wsgid.core
+
 options = []
 BOOL, STRING, LIST, INT = range(4)
 
@@ -21,7 +23,16 @@ def _parse_args():
     return opts
   else:
     import argparse
-    parser = argparse.ArgumentParser(prog=__progname__, description=__description__, version=__version__)
+    parser = argparse.ArgumentParser(prog=__progname__, description=__description__, version=__version__, conflict_handler='resolve' )
+    commands = wsgid.core.command.ICommand.implementors()
+    for command in commands:
+      name = command.command_name()
+      option_group = parser.add_argument_group(description="Options added by the {0} subcommand".format(name))
+      # Add the custom command aditional options
+      for opt in command.extra_options():
+        option_group.add_argument(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
+    
+    # Add wsgid core options
     for opt in options:
       parser.add_argument(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
     return parser.parse_args()
@@ -29,6 +40,14 @@ def _parse_args():
 def _create_optparse(prog, description, version):
     import optparse
     optparser = optparse.OptionParser(prog=prog, description=description, version=version)
+    commands = wsgid.core.command.ICommand.implementors()
+    for command in commands:
+      name = command.command_name()
+      option_group = optparse.OptionGroup(optparser, "Options added by the {0} subcommand".format(name))
+      # Add the custom command aditional options
+      for opt in command.extra_options():
+        option_group.add_option(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
+
     for opt in options:
       optparser.add_option(opt.name, help = opt.help, \
                            type = opt.type, action = opt.action, \
@@ -56,13 +75,15 @@ class CommandLineOption(object):
       self.type = TYPES[type]
 
     self.dest = dest
+    if not dest:
+      self.dest = name.replace('-', '_')
     self.default_value = default_value
 
 
   def __str__(self):
     return "{name}".format(name=self.name)
 
-def add_option(name = None, shortname = None, help = None, type = None, dest = None, default_value = None):
+def add_option(name = None, shortname = None, help = None, type = None, dest = None, default_value = None, namespace = 'core'):
   if name:
     op = CommandLineOption(name, shortname, help, type, dest, default_value)
     options.append(op)
@@ -97,7 +118,7 @@ add_option('no-daemon', help="Runs wsgid in the foreground, printing all logs to
 #optparser.add_option('--workers', help="Starts a fixed number of wsgid processes. Defaults to 1",\
 #    action="store", default="1", type="int", dest="workers")
 add_option('workers', help="Starts a fixed number of wsgid processes. Defaults to 1",\
-    default_value="1", type=INT, dest="workers")
+    type=INT, dest="workers")
 
 #optparser.add_option('--keep-alive', help="Automatically respawn any dead worker. Killink the master process kills any pending worker",\
 #    action="store_true", dest="keep_alive")
@@ -122,7 +143,7 @@ add_option(name='send', \
     dest="send")
 
 
-def parse_options():
+def parse_options(use_config = True):
   options = _parse_args()
   options.app_path = _full_path(options.app_path)
   options.envs = {}
@@ -131,7 +152,7 @@ def parse_options():
     # Check the existence of app-path/wsgid.json, if yes use it
     # instead of command line options
     filepath = os.path.join(options.app_path, 'wsgid.json')
-    if os.path.exists(filepath):
+    if os.path.exists(filepath) and use_config:
       try:
         import simplejson as json
       except:
@@ -142,7 +163,7 @@ def parse_options():
       options.send = _return_str(json_cfg.setdefault('send', options.send))
       options.recv = _return_str(json_cfg.setdefault('recv', options.recv))
       options.debug = _return_bool(json_cfg.setdefault('debug', options.debug))
-      options.workers = int(json_cfg.setdefault('workers', options.workers))
+      options.workers = int(json_cfg.setdefault('workers', options.workers or 1))
       options.keep_alive = _return_bool(json_cfg.setdefault('keep_alive', options.keep_alive))
       options.wsgi_app = _return_str(json_cfg.setdefault('wsgi_app', options.wsgi_app))
       options.nodaemon = _return_str(json_cfg.setdefault('nodaemon', options.nodaemon))

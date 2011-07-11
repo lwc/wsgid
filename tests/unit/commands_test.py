@@ -62,7 +62,7 @@ class CommandConfigTest(unittest.TestCase):
     self.init = CommandInit()
     self.opt = FakeOptions(app_path="./newapp", wsgi_app="app.frontends.wsgi.application",\
                       debug=True, no_daemon=True, workers=8, keep_alive=True, chroot=True,\
-                      recv="tcp://127.0.0.1:7000", send="tcp://127.0.0.1:7001")
+                      recv="tcp://127.0.0.1:7000", send="tcp://127.0.0.1:7001", no_debug=False, no_chroot=False, no_keep_alive=False)
 
     os.system("rm -rf ./newapp/")
     self.init.run(self.opt)
@@ -103,7 +103,7 @@ class CommandConfigTest(unittest.TestCase):
   def test_create_all_options(self):
     opt = FakeOptions(app_path="./newapp", wsgi_app="app.frontends.wsgi.application",\
                       debug=True, no_daemon=True, workers=8, keep_alive=True, chroot=True,\
-                      recv="tcp://127.0.0.1:7000", send="tcp://127.0.0.1:7001")
+                      recv="tcp://127.0.0.1:7000", send="tcp://127.0.0.1:7001", no_debug=False, no_chroot=False, no_keep_alive=False)
     self.config.run(opt)
     h = simplejson.loads(file("./newapp/wsgid.json", "r+").read())
     self.assertEquals("app.frontends.wsgi.application", h['wsgi_app'])
@@ -115,17 +115,14 @@ class CommandConfigTest(unittest.TestCase):
     self.assertEquals("tcp://127.0.0.1:7001", h['send'])
 
   '''
-    We have to be able to disable a boolean option.
-    Maybe just don't pass it to the command line could be a good choice
-    Maybe we could make it possible to command to create aditional parser options,
-      this wat config command could add a --no-debug option
+    the no_debug options is an extra option added by the config command
   '''
   def test_disable_boolean_option(self):
-    self.fail()
+    opt = FakeOptions(app_path="./newapp", wsgi_app="app.frontends.wsgi.application",\
+                      no_debug=True, debug=True, workers=9, keep_alive=True, chroot=True,\
+                      recv="tcp://127.0.0.1:7000", send="tcp://127.0.0.1:7001", no_chroot=False, no_keep_alive=False)
+    self.config.run(opt)
+    h = simplejson.loads(file("./newapp/wsgid.json", "r+").read())
+    self.assertEquals("app.frontends.wsgi.application", h['wsgi_app'])
+    self.assertEquals("False", h['debug'])
 
-  '''
-   Since workers defaults to 1 (this is hardcoded into the parser)
-   this default is overiding the option that is passed to config run() method.
-  '''
-  def test_change_workers_option(self):
-    self.fail()

@@ -7,6 +7,13 @@ class ICommand(Interface):
 
 
   '''
+    Returns the command name. This name will be used to show aditional
+    options when calling wsgid --help
+  '''
+  def command_name(self):
+    pass
+
+  '''
     Returns True if this command implementor
     can run the command passed as {command_name} parameter
     Returns False otherwise
@@ -22,6 +29,12 @@ class ICommand(Interface):
   def run(self, options):
     pass
 
+  
+  '''
+   Return a list of wsgid.options.parser.CommandLineOption instances
+  '''
+  def extra_options(self):
+    pass
 
 
 '''
@@ -38,7 +51,7 @@ def run_command():
         # Remove the command name, since it's not defined
         # in the parser options
         sys.argv.remove(cname)
-        command.run(parser.parse_options())
+        command.run(parser.parse_options(use_config = False))
         return True
   return False
 
