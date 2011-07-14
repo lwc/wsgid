@@ -4,10 +4,9 @@ import sys
 import logging
 import os
 
-from . import get_main_logger, set_main_logger
-from command import run_command
+from . import get_main_logger, set_main_logger, run_command
 from ..commands import *
-from ..options import parser
+import parser
 
 import plugnplay
 import daemon

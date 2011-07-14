@@ -7,7 +7,7 @@ import logging
 
 import unittest
 from wsgid.core.cli import Cli
-from wsgid.options import parser
+from wsgid.core import parser
 
 
 class CliTest(unittest.TestCase):

@@ -1,21 +1,18 @@
 #encoding: utf-8
 
-from wsgid import __version__, __progname__, __description__
+from .. import __version__, __progname__, __description__
 import os
 
-import wsgid.core
+from command import ICommand
 
-options = []
 BOOL, STRING, LIST, INT = range(4)
 
 TYPES = {INT: 'int'}
 
-
-
-
 def _parse_args():
   import platform
   pyversion = platform.python_version()
+  print "pyversion={0}".format(pyversion)
   if pyversion < '2.7':
     optparser = _create_optparse(prog=__progname__, description=__description__,\
                                       version= __version__)
@@ -24,31 +21,35 @@ def _parse_args():
   else:
     import argparse
     parser = argparse.ArgumentParser(prog=__progname__, description=__description__, version=__version__, conflict_handler='resolve' )
-    commands = wsgid.core.command.ICommand.implementors()
+    commands = ICommand.implementors()
     for command in commands:
       name = command.command_name()
       option_group = parser.add_argument_group(description="Options added by the {0} subcommand".format(name))
       # Add the custom command aditional options
       for opt in command.extra_options():
+        print "Adding option {0}".format(opt.name)
         option_group.add_argument(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
     
     # Add wsgid core options
-    for opt in options:
+    for opt in _create_core_options():
+      print "Adding option {0}".format(opt.name)
       parser.add_argument(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
     return parser.parse_args()
 
 def _create_optparse(prog, description, version):
     import optparse
     optparser = optparse.OptionParser(prog=prog, description=description, version=version)
-    commands = wsgid.core.command.ICommand.implementors()
+    commands = ICommand.implementors()
     for command in commands:
       name = command.command_name()
       option_group = optparse.OptionGroup(optparser, "Options added by the {0} subcommand".format(name))
+      
       # Add the custom command aditional options
       for opt in command.extra_options():
+        print "Adding option {0}".format(opt.name)
         option_group.add_option(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
 
-    for opt in options:
+    for opt in _create_core_options():
       optparser.add_option(opt.name, help = opt.help, \
                            type = opt.type, action = opt.action, \
                            dest = opt.dest, default = opt.default_value)
@@ -85,63 +86,45 @@ class CommandLineOption(object):
 
 def add_option(name = None, shortname = None, help = None, type = None, dest = None, default_value = None, namespace = 'core'):
   if name:
-    op = CommandLineOption(name, shortname, help, type, dest, default_value)
-    options.append(op)
+    return CommandLineOption(name, shortname, help, type, dest, default_value)
 
+'''
+  Create the list of main CLI options
+'''
+def _create_core_options():
 
+  return [
+  add_option('app-path', help="Path to the WSGI application",\
+      dest="app_path"),
 
-#optparser.add_option('--app-path', help="Path to the WSGI application",\
-#    action="store", dest="app_path")
-add_option('app-path', help="Path to the WSGI application",\
-    dest="app_path")
+  add_option('wsgi-app', help="Full qualified name for the WSGI application object",\
+      dest="wsgi_app"),
 
-#optparser.add_option('--wsgi-app', help="Full qualified name for the WSGI application object",\
-#    action="store", dest="wsgi_app")
-add_option('wsgi-app', help="Full qualified name for the WSGI application object",\
-    dest="wsgi_app")
+  add_option('loader-dir', help="Aditional dir for custom Application Loaders",\
+      dest="loader_dir"),
 
-#optparser.add_option('--loader-dir', help="Aditional dir for custom Application Loaders",\
-#    action="append", dest="loader_dir")
-add_option('loader-dir', help="Aditional dir for custom Application Loaders",\
-    dest="loader_dir")
+  add_option('debug', help="Runs wsgid in debug mode. Lots of logging.",\
+      dest="debug", type = BOOL),
 
-#optparser.add_option('--debug', help="Runs wsgid in debug mode. Lots of logging.",\
-#    action="store_true", dest="debug")
-add_option('debug', help="Runs wsgid in debug mode. Lots of logging.",\
-    dest="debug", type = BOOL)
+  add_option('no-daemon', help="Runs wsgid in the foreground, printing all logs to stderr",\
+      type=BOOL, dest="nodaemon"),
 
-#optparser.add_option('--no-daemon', help="Runs wsgid in the foreground, printing all logs to stderr",\
-#    action="store_true", dest="nodaemon")
-add_option('no-daemon', help="Runs wsgid in the foreground, printing all logs to stderr",\
-    type=BOOL, dest="nodaemon")
+  add_option('workers', help="Starts a fixed number of wsgid processes. Defaults to 1",\
+      type=INT, dest="workers"),
 
-#optparser.add_option('--workers', help="Starts a fixed number of wsgid processes. Defaults to 1",\
-#    action="store", default="1", type="int", dest="workers")
-add_option('workers', help="Starts a fixed number of wsgid processes. Defaults to 1",\
-    type=INT, dest="workers")
+  add_option('keep-alive', help="Automatically respawn any dead worker. Killink the master process kills any pending worker",\
+      type = BOOL, dest="keep_alive"),
 
-#optparser.add_option('--keep-alive', help="Automatically respawn any dead worker. Killink the master process kills any pending worker",\
-#    action="store_true", dest="keep_alive")
-add_option('keep-alive', help="Automatically respawn any dead worker. Killink the master process kills any pending worker",\
-    type = BOOL, dest="keep_alive")
+  add_option('chroot', help="Chroot to the value of --app-path, before loading the app.",\
+      type = BOOL, dest="chroot"),
 
-#optparser.add_option('--chroot', help="Chroot to the value of --app-path, before loading the app.",\
-#    action="store_true", dest="chroot")
-add_option('chroot', help="Chroot to the value of --app-path, before loading the app.",\
-    type = BOOL, dest="chroot")
+  add_option('recv', \
+      help="TCP socket used to receive data from mongrel2. Format is IP:Port or *:Port to listen on any local IP",\
+      dest="recv"),
 
-#optparser.add_option('--recv', help="TCP socket used to receive data from mongrel2. Format is IP:Port or *:Port to listen on any local IP",\
-#    action="store", dest="recv")
-add_option('recv', \
-    help="TCP socket used to receive data from mongrel2. Format is IP:Port or *:Port to listen on any local IP",\
-    dest="recv")
-
-#optparser.add_option('--send', help="TCP socket used to return data to mongrel2. Format is IP:Port",\
-#    action="store", dest="send")
-add_option(name='send', \
-    help="TCP socket used to return data to mongrel2. Format is IP:Port",\
-    dest="send")
-
+  add_option(name='send', \
+      help="TCP socket used to return data to mongrel2. Format is IP:Port",\
+    dest="send")]
 
 def parse_options(use_config = True):
   options = _parse_args()

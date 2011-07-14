@@ -1,6 +1,6 @@
 from wsgid.core import Plugin
 from wsgid.core.command import ICommand
-from wsgid.options.parser import CommandLineOption, BOOL
+from wsgid.core.parser import CommandLineOption, BOOL
 import os
 import simplejson
 

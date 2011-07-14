@@ -4,7 +4,7 @@
 import unittest
 
 import zmq
-from wsgid.core import Wsgid
+from wsgid.core.wsgid import Wsgid
 
 
 class WsgidTest(unittest.TestCase):

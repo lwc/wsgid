@@ -1,7 +1,8 @@
 #encoding: utf-8
 
 import urllib
-from ..core import Message, StartResponse, get_main_logger
+from message import Message
+from . import StartResponse, get_main_logger
 import zmq
 from StringIO import StringIO
 

@@ -25,3 +25,6 @@ pip-log.txt
 # Unit test / coverage reports
 .coverage
 .tox
+
+# Data created by the unit tests
+test/unit/app-path/

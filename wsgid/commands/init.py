@@ -4,6 +4,7 @@ from wsgid.core import Plugin
 from wsgid.core.command import ICommand
 import os
 
+from wsgid.core.parser import CommandLineOption, BOOL
 class CommandInit(Plugin):
 
   implements = [ICommand]
@@ -24,7 +25,7 @@ class CommandInit(Plugin):
     self._create_if_not_exist(os.path.join(options.app_path, 'logs'))
 
   def extra_options(self):
-    return []
+    return [CommandLineOption(name='no-init', help = 'Turns off debug option', type=BOOL)]
 
   def _create_if_not_exist(self, path):
     if not os.path.exists(path):
