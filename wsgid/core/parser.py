@@ -26,12 +26,10 @@ def _parse_args():
       option_group = parser.add_argument_group(description="Options added by the {0} subcommand".format(name))
       # Add the custom command aditional options
       for opt in command.extra_options():
-        print "Adding option {0}".format(opt.name)
         option_group.add_argument(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
     
     # Add wsgid core options
     for opt in _create_core_options():
-      print "Adding option {0}".format(opt.name)
       parser.add_argument(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
     return parser.parse_args()
 
@@ -45,7 +43,6 @@ def _create_optparse(prog, description, version):
       
       # Add the custom command aditional options
       for opt in command.extra_options():
-        print "Adding option {0}".format(opt.name)
         option_group.add_option(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
 
     for opt in _create_core_options():
