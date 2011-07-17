@@ -86,7 +86,7 @@ class Cli(object):
     self._mkdir_if_not_exist(pid_folder)
 
     pid_file_path = self._return_pid_file_path(pid, pid_type)
-    pid_file = file(pid_file_path, 'w')
+    pid_file = open(pid_file_path, 'w')
     self.log.debug("Creating pid file at {0}".format(pid_file_path))
     pid_file.write(str(pid))
     pid_file.close()

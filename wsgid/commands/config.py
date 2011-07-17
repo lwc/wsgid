@@ -48,8 +48,8 @@ class CommandConfig(Plugin):
 
   def _open_config_file(self, path):
     if os.path.exists(path):
-      return file(path, "r+")
-    return file(path, "w+")
+      return open(path, "r+")
+    return open(path, "w+")
 
   def _override_if_not_none(self, opt_name, dest, value):
     if value:

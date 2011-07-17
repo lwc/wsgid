@@ -3,6 +3,7 @@
 from wsgid.core import Plugin
 from wsgid.core.command import ICommand
 import os
+import sys
 
 from wsgid.core.parser import CommandLineOption, BOOL
 class CommandInit(Plugin):
@@ -16,7 +17,7 @@ class CommandInit(Plugin):
     return "init" == cname
 
   def run(self, options):
-    print "Initializing wsgid app folder in {0}...".format(options.app_path)
+    sys.stderr.write("Initializing wsgid app folder in {0}...\n".format(options.app_path))
     self._create_if_not_exist(options.app_path)
     self._create_if_not_exist(os.path.join(options.app_path, 'pid'))
     self._create_if_not_exist(os.path.join(options.app_path, 'pid/master'))
