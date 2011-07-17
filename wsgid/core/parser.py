@@ -12,7 +12,6 @@ TYPES = {INT: 'int'}
 def _parse_args():
   import platform
   pyversion = platform.python_version()
-  print "pyversion={0}".format(pyversion)
   if pyversion < '2.7':
     optparser = _create_optparse(prog=__progname__, description=__description__,\
                                       version= __version__)
