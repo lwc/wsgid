@@ -97,7 +97,8 @@ class Cli(object):
   def _remove_pid(self, pid, pid_type):
     pid_file = self._return_pid_file_path(pid, pid_type)
     self.log.debug("Removing pid file at {0}".format(pid_file))
-    os.unlink(pid_file)
+    if os.path.isfile(pid_file):
+      os.unlink(pid_file)
 
   def _return_pid_folder(self, pid_type):
 
