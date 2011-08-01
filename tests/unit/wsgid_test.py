@@ -177,11 +177,11 @@ class WsgidTest(unittest.TestCase):
     self.sample_headers['Referer'] = 'http://www.someserver.com'
 
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
-    self.assertEquals('some-value', environ['HTTP_my_header'])
+    self.assertEquals('some-value', environ['HTTP_MY_HEADER'])
     self.assertEquals('other-value', environ['HTTP_OTHER_HEADER'])
     self.assertEquals('x-header', environ['X-Some-Header'])
-    self.assertEquals('*/*', environ['HTTP_Accept'])
-    self.assertEquals('http://www.someserver.com', environ['HTTP_Referer'])
+    self.assertEquals('*/*', environ['HTTP_ACCEPT'])
+    self.assertEquals('http://www.someserver.com', environ['HTTP_REFERER'])
 
 
   '''
@@ -214,8 +214,8 @@ class WsgidTest(unittest.TestCase):
     self.assertEquals('localhost', environ['SERVER_NAME'])
     self.assertEquals('80', environ['SERVER_PORT'])
     self.assertEquals('value', environ['HTTP_CUSTOM_HEADER'])
-    self.assertEquals('*/*', environ['HTTP_Accept'])
-    self.assertEquals('some user agent/1.0', environ['HTTP_User-Agent'])
+    self.assertEquals('*/*', environ['HTTP_ACCEPT'])
+    self.assertEquals('some user agent/1.0', environ['HTTP_USER-AGENT'])
     self.assertEquals('42', environ['CONTENT_LENGTH'])
     self.assertEquals('42', environ['content-length'])
     self.assertEquals('text/plain', environ['CONTENT_TYPE'])
