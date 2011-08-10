@@ -5,7 +5,7 @@ import unittest
 
 import zmq
 from wsgid.core.wsgid import Wsgid
-
+import sys
 
 class WsgidTest(unittest.TestCase):
 
@@ -205,7 +205,7 @@ class WsgidTest(unittest.TestCase):
         }
 
     environ = self.wsgid._create_wsgi_environ(request)
-    self.assertEquals(23, len(environ))
+    self.assertEquals(24, len(environ))
     self.assertEquals('GET', environ['REQUEST_METHOD'])
     self.assertEquals('HTTP/1.1', environ['SERVER_PROTOCOL'])
     self.assertEquals('/py', environ['SCRIPT_NAME'])
@@ -237,6 +237,7 @@ class WsgidTest(unittest.TestCase):
     self.assertEquals(True, environ['wsgi.run_once'])
     self.assertEquals((1,0), environ['wsgi.version'])
     self.assertEquals("http", environ['wsgi.url_scheme'])
+    self.assertEquals(sys.stderr, environ['wsgi.errors'])
 
 
 class WsgidReplyTest(unittest.TestCase):

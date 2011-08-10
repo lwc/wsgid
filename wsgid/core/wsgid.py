@@ -5,6 +5,7 @@ from message import Message
 from . import StartResponse, get_main_logger
 import zmq
 from StringIO import StringIO
+import sys
 
 class Wsgid(object):
   
@@ -105,6 +106,7 @@ class Wsgid(object):
     environ['wsgi.multithread'] = False
     environ['wsgi.multiprocess'] = True
     environ['wsgi.run_once'] = True
+    environ['wsgi.errors'] = sys.stderr
     environ['wsgi.version'] = (1,0)
     self._set(environ, 'wsgi.url_scheme', "http")
 
