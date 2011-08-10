@@ -1,5 +1,5 @@
 WSGID Command Line Interface
-==========================
+============================
 
 .. _main-options:
 
@@ -169,4 +169,4 @@ Command cas also add extra options do wsgid. When you run wsgid with `--help`, a
     --no-chroot           Turns off Chroot option
 
 
-For more information about how to implement more custom commands, please see :ref:`internals-commands`.
+For more information about how to implement more custom commands, please see :ref:`commands-implementation`.
