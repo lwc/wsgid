@@ -1,8 +1,24 @@
 Changelog
 =========
 
+Version 0.3.0
+*************
+
+ * Implementation of loadabe subcommands. For more see :ref:`commands` and :ref:`commands-implementation`
+ * Internal refactoring to simplify the overall code.
+ * First steps towards py3k compatibility.
+ * Bug fixes.
+ * Added simplejson as a dependency
+ * Thanks to `yoshrote`_, `zhemao`_ and `Antoine Delaunay`_ for the contributions.
+
+ * And as usual, here is the changelog for the nerds. =)  https://github.com/daltonmatos/wsgid/compare/v0.2.1...v0.3.0
+
+.. _yoshrote: https://github.com/daltonmatos/wsgid/commit/524403b3
+.. _zhemao: https://github.com/daltonmatos/wsgid/commit/e779e174
+.. _Antoine Delaunay: https://github.com/daltonmatos/wsgid/commit/b3c9b73d
+
 Version 0.2.1
-***********
+*************
 
  * Now it's possible to declare custom environ variables wsgid will create before starting your instances. More at :ref:`env-vars`.
  * Bugfix: When wsgid did not start for any reason, it was not removing pid files.

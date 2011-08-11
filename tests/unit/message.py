@@ -2,7 +2,7 @@
 
 
 import unittest
-from wsgid.core import Message
+from wsgid.core.message import Message
 import json
 
 

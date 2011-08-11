@@ -1,9 +1,12 @@
 #encoding: utf-8
 
-__all__ = ['StartResponse', 'StartResponseCalledTwice', 'Plugin']
+__all__ = ['StartResponse', 'StartResponseCalledTwice', 'Plugin', 'run_command', 'get_main_logger']
 
+import sys
 import logging
 import plugnplay
+from command import ICommand
+import parser
 
 Plugin = plugnplay.Plugin
 
@@ -49,6 +52,21 @@ def get_main_logger():
 def set_main_logger(logger):
   log = logger
 
+'''
+ Extract the first command line argument (if it exists)
+ and tries to find a ICommand implementor for it.
+ If found, run it. If not does nothing.
+'''
+def run_command():
+  command_implementors = ICommand.implementors()
+  if command_implementors and len(sys.argv) > 1:
+    cname = sys.argv[1] # get the command name
+    for command in command_implementors:
+      if command.name_matches(cname):
+        # Remove the command name, since it's not defined
+        # in the parser options
+        sys.argv.remove(cname)
+        command.run(parser.parse_options(use_config = False))
+        return True
+  return False
 
-from message import *
-from wsgid import *

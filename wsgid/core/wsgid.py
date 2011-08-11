@@ -1,9 +1,11 @@
 #encoding: utf-8
 
 import urllib
-from ..core import Message, StartResponse, get_main_logger
+from message import Message
+from . import StartResponse, get_main_logger
 import zmq
 from StringIO import StringIO
+import sys
 
 class Wsgid(object):
   
@@ -104,6 +106,7 @@ class Wsgid(object):
     environ['wsgi.multithread'] = False
     environ['wsgi.multiprocess'] = True
     environ['wsgi.run_once'] = True
+    environ['wsgi.errors'] = sys.stderr
     environ['wsgi.version'] = (1,0)
     self._set(environ, 'wsgi.url_scheme', "http")
 
@@ -146,6 +149,8 @@ class Wsgid(object):
       if header[0] in ('X', 'x'):
         environ[header] = str(value)
       else:
+        # Change HTTP_ headers to CGI-like formatting
+        header = header.upper()
         environ['HTTP_%s' % header] = str(value)
 
     return environ

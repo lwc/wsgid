@@ -1,5 +1,10 @@
-WSGID Command line Options
-==========================
+WSGID Command Line Interface
+============================
+
+.. _main-options:
+
+Main Options
+------------
 
 Here we will document only the main options of wsgid. Other options you can read directly on the man page.
 
@@ -88,7 +93,7 @@ This option will make wsgid watch for its child processes. If any child process 
 .. _json-config:
 
 Using the command line options inside a config file
-===================================================
+---------------------------------------------------
 
 .. versionadded:: 0.2
 
@@ -130,3 +135,38 @@ Now it is possible to create environ variables that will be available to your WS
 
 This will create two environ variables that your app will be able to read using `os.environ['ENV1']` and `os.environ['ENV2']`.
 
+.. _commands:
+
+
+WSGID Commands
+--------------
+
+.. versionadded:: 0.3.0
+
+Since version 0.3.0 wsgid has added support for loadable custom commands. A wsgid command is the first option passed on the command line to wsgid. This first options has a special meaning and wsgid will try to find and internal implementation for this command.
+
+A simple example is the `init` command. To use it you can run:
+
+   $ wsgid init --app-path=/some/path
+
+This will initialize and wsgid application folder (See :doc:`appstructure`) by creating all necessary folders. Note that all options (See :ref:`main-options`) recognized by wsgid on the command line will be also passed to the command implementation.
+
+Command cas also add extra options do wsgid. When you run wsgid with `--help`, at the bottom of the help screen you will see all options added by each custom command ::
+
+
+    A complete WSGI environment for mongrel2 handlers
+    
+    Some text here...
+
+    Options added by the init subcommand
+
+    --no-init             Turns off debug option
+
+    Options added by the config subcommand
+
+    --no-debug            Turns off debug option
+    --no-keep-alive       Turns off Keep alive option
+    --no-chroot           Turns off Chroot option
+
+
+For more information about how to implement more custom commands, please see :ref:`commands-implementation`.

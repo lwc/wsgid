@@ -7,7 +7,7 @@ import logging
 
 import unittest
 from wsgid.core.cli import Cli
-from wsgid.options import parser
+from wsgid.core import parser
 
 
 class CliTest(unittest.TestCase):
@@ -21,7 +21,7 @@ class CliTest(unittest.TestCase):
     
     # Ok, not pretty but better than re-implementing this in python
     os.system("rm -rf {0}".format(os.path.join(self.fake_app_path, 'pid/')))
-    self.cli.options = parser.parse_args()
+    self.cli.options = parser._parse_args()
     self.cli.options.app_path = self.fake_app_path
 
   def test_nodaemon(self):
@@ -77,12 +77,12 @@ class CliTest(unittest.TestCase):
 
   def test_parse_workers_as_integer(self):
     sys.argv[1:] = ['--workers=3']
-    opts = parser.parse_args()
+    opts = parser._parse_args()
     self.assertTrue(type(int), opts.workers)
 
   def _parse(self, *opts):
     sys.argv[1:] = opts
-    return self.cli._create_daemon_options(parser.parse_args())
+    return self.cli._create_daemon_options(parser.parse_options())
 
   '''
     We must generate all logs inside <app-path>/logs
@@ -90,14 +90,14 @@ class CliTest(unittest.TestCase):
   def test_ajust_log_path_app_path(self):
     app_path = os.path.join('../', os.path.dirname(__file__), 'app-path')
     sys.argv[1:] = ['--app-path=%s' % app_path]
-    opt = parser.parse_args()
+    opt = parser._parse_args()
     self.cli._set_loggers(opt)
     handlers = self.cli.log.handlers
     self.assertTrue(isinstance(handlers[0], logging.FileHandler))
     self.assertEquals(os.path.join(app_path, 'logs/wsgid.log'), handlers[0].baseFilename)
 
   def test_full_path_empty_path(self):
-    self.assertEquals(self.cli._full_path(None), None)
+    self.assertEquals(parser._full_path(None), None)
 
   '''
     Even if we do not chroot, we must drop priv.
@@ -105,7 +105,7 @@ class CliTest(unittest.TestCase):
   def test_should_droppriv_if_app_path_is_passed(self):
     app_path = os.path.join('../', os.path.dirname(__file__), 'app-path')
     argv = ['--app-path=%s' % app_path]
-    stat = os.stat(self.cli._full_path(app_path))
+    stat = os.stat(parser._full_path(app_path))
     opts = self._parse(*argv)
     self.assertEquals(opts['uid'], stat.st_uid)
     self.assertEquals(opts['gid'], stat.st_gid)
@@ -117,7 +117,7 @@ class CliTest(unittest.TestCase):
     app_path = os.path.join('../', os.path.dirname(__file__), 'app-path')
     # All we have to do is pass --app-path, so wsgfid ca find ${app-path}/wsgid.json
     sys.argv[1:] = ['--app-path=%s' % app_path]
-    options = self.cli._parse_options()
+    options = parser.parse_options()
     self.assertEquals('tcp://127.0.0.1:5000', options.recv)
     self.assertEquals('tcp://127.0.0.1:5001', options.send)
     self.assertEquals(4, options.workers)
@@ -130,7 +130,7 @@ class CliTest(unittest.TestCase):
   def test_wsgid_json_overwrites_command_line(self):
     app_path = os.path.join('../', os.path.dirname(__file__), 'app-path')
     sys.argv[1:] = ['--app-path={0}'.format(app_path), '--workers=8']
-    options = self.cli._parse_options()
+    options = parser.parse_options()
     self.assertEquals(4, options.workers)
 
 
