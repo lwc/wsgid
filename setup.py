@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # encoding: utf-8
 from setuptools import setup
 from wsgid import __progname__, __version__, __description__
