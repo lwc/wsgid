@@ -2,9 +2,13 @@
 
 import unittest
 from wsgid.commands.init import CommandInit
+from wsgid.commands.restart import CommandRestart
 from wsgid.commands.config import CommandConfig
 import os
 import simplejson
+
+from mock import patch
+import signal
 
 class FakeOptions(object):
   def __init__(self, **kwargs):
@@ -120,9 +124,31 @@ class CommandConfigTest(unittest.TestCase):
   def test_disable_boolean_option(self):
     opt = FakeOptions(app_path="./newapp", wsgi_app="app.frontends.wsgi.application",\
                       no_debug=True, debug=True, workers=9, keep_alive=True, chroot=True,\
-                      recv="tcp://127.0.0.1:7000", send="tcp://127.0.0.1:7001", no_chroot=False, no_keep_alive=False)
+                      recv="tcp://127.0.0.1:7000", send="tcp://127.0.0.1:7001", 
+                      no_chroot=False, no_keep_alive=False)
     self.config.run(opt)
     h = simplejson.loads(file("./newapp/wsgid.json", "r+").read())
     self.assertEquals("app.frontends.wsgi.application", h['wsgi_app'])
     self.assertEquals("False", h['debug'])
+
+
+class CommandRestartTest(unittest.TestCase):
+
+  def setUp(self):
+    self.init = CommandInit()
+    self.restart = CommandRestart()
+    os.system("rm -rf newapp/")
+    self.opt = FakeOptions(app_path="./newapp")
+
+  def test_kill_master_pids(self):
+    self.init.run(self.opt)
+    open("newapp/pid/worker/3847.pid", "w")
+    open("newapp/pid/worker/4857.pid", "w")
+
+    with patch('os.kill'):
+      self.restart.run(self.opt)
+      self.assertEquals(2, os.kill.call_count)
+      self.assertTrue(((3847, 15), {}) in os.kill.call_args_list)
+      self.assertTrue(((4857, 15), {}) in os.kill.call_args_list)
+
 
