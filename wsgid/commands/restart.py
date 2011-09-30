@@ -4,10 +4,8 @@ from wsgid.core import Plugin, get_main_logger as logger
 from wsgid.core.command import ICommand
 import os
 import signal
-import sys
 from glob import glob
 
-from wsgid.core.parser import CommandLineOption, BOOL
 class CommandRestart(Plugin):
 
   implements = [ICommand]

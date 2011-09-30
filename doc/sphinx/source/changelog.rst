@@ -1,6 +1,12 @@
 Changelog
 =========
 
+
+Version -next
+*************
+
+ * Implemented a new command: `restart`, see more at :ref:`commands`
+
 Version 0.3.0
 *************
 
