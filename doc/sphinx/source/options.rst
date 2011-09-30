@@ -170,3 +170,43 @@ Command cas also add extra options do wsgid. When you run wsgid with `--help`, a
 
 
 For more information about how to implement more custom commands, please see :ref:`commands-implementation`.
+
+init
+****
+
+This command will initialize a brand new appfolder for your new application. It will create all necessary folders automatically. It will also create the folder passed to `--app-path` if it does no already exist. ::
+
+    $ wsgid init --app-path=/path/where/to/create
+
+config
+******
+
+
+This command will create the config file using all command line arguments passed to it. eg. ::
+
+    $ wsgid config --app-path=/path/to/app --send=tcp://127.0.0.1:8888 --recv=tcp:127.0.0.1:8889 --workers=8 --keep-alive
+
+this  wil create a file named `wsgid.json` inside `/path/to/app`. So you will be able to start your application just running: ::
+
+    $ wsgid --app-path=/path/to/app
+
+The `wsgid.json` would be like this: ::
+
+    {
+      "keep_alive": "True",
+      "workers": "8",
+      "recv": "tcp://127.0.0.1:8889",
+      "send": "tcp://127.0.0.1:8888"
+    }
+
+restart
+*******
+
+.. versionadded:: 0.3.1
+
+This command sends a SIGTERM sginal to all your worker processes. This, in addition to the keep-alive option can restart your entire application. ::
+
+    $ wsgid restart --app-path=/path/to/your/app
+
+
+
