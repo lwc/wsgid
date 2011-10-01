@@ -204,9 +204,19 @@ restart
 
 .. versionadded:: 0.3.1
 
-This command sends a SIGTERM sginal to all your worker processes. This, in addition to the keep-alive option can restart your entire application. ::
+This command sends a SIGTERM signal to all your worker processes. This, in addition to the keep-alive option can restart your entire application. ::
 
     $ wsgid restart --app-path=/path/to/your/app
+
+stop
+****
+
+.. versionadded:: 0.3.1
+
+This command sends a SIGTERM signal to all your master processes. This will completely turn off your entire application, unless you are using some kind of supervisor. ::
+
+    $ wsgid stop --app-path=/path/to/your/app
+
 
 
 

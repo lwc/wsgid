@@ -1,9 +1,7 @@
 
 
 import unittest
-from wsgid.commands.init import CommandInit
-from wsgid.commands.restart import CommandRestart
-from wsgid.commands.config import CommandConfig
+from wsgid.commands import *
 import os
 import simplejson
 
@@ -151,4 +149,27 @@ class CommandRestartTest(unittest.TestCase):
       self.assertTrue(((3847, 15), {}) in os.kill.call_args_list)
       self.assertTrue(((4857, 15), {}) in os.kill.call_args_list)
 
+class CommandStopTest(unittest.TestCase):
 
+  def setUp(self):
+    self.init = CommandInit()
+    self.stop = CommandStop()
+    os.system("rm -rf newapp/")
+    self.opt = FakeOptions(app_path="./newapp")
+
+  def test_kill_master_pids(self):
+    self.init.run(self.opt)
+    open("newapp/pid/master/2968.pid", "w")
+    open("newapp/pid/master/9847.pid", "w")
+
+    with patch('os.kill'):
+      self.stop.run(self.opt)
+      self.assertEquals(2, os.kill.call_count)
+      self.assertTrue(((9847, 15), {}) in os.kill.call_args_list)
+      self.assertTrue(((2968, 15), {}) in os.kill.call_args_list)
+
+  def test_command_name(self):
+    self.assertEquals('stop', self.stop.command_name())
+
+  def test_command_name_matches(self):
+    self.assertTrue(self.stop.name_matches('stop'))

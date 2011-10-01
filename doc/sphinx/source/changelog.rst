@@ -2,10 +2,11 @@ Changelog
 =========
 
 
-Version -next
+Version 0.3.1
 *************
 
- * Implemented a new command: `restart`, see more at :ref:`commands`
+ * Implemented a new command: ``restart``, see more at :ref:`commands`
+ * Implemented a new command: ``stop``, see more at :ref:`commands`
 
 Version 0.3.0
 *************
