@@ -82,7 +82,7 @@ class CommandConfigTest(unittest.TestCase):
   def test_override_option(self):
     # Write an config file so we can override some options
     f = file(os.path.join(self.CLEAN_PATH, "wsgid.json"), "w+")
-    simplejson.dump({"recv": "tcp://127.0.0.1:3000", "debug": "True", "workers": "8", "chroot": "True"}, f)
+    simplejson.dump({"recv": "tcp://127.0.0.1:3000", "debug": "True", "workers": 8, "chroot": "True"}, f)
     f.close()
 
     # Here we override some options
@@ -97,7 +97,7 @@ class CommandConfigTest(unittest.TestCase):
     h = simplejson.loads(file(os.path.join(self.CLEAN_PATH, "wsgid.json"), "r+").read())
     self.assertEquals("tcp://127.0.0.1:4000", h['recv'])
     self.assertEquals("True", h['debug'])
-    self.assertEquals("8", h['workers'])
+    self.assertEquals(8, h['workers'])
     self.assertEquals("True", h['chroot']) # An option nos passed on the command line should remain on the config file
 
 
@@ -110,7 +110,7 @@ class CommandConfigTest(unittest.TestCase):
     h = simplejson.loads(file(os.path.join(self.CLEAN_PATH, "wsgid.json"), "r+").read())
     self.assertEquals("app.frontends.wsgi.application", h['wsgi_app'])
     self.assertEquals("True", h['debug'])
-    self.assertEquals("8", h['workers'])
+    self.assertEquals(8, h['workers'])
     self.assertEquals("True", h['keep_alive'])
     self.assertEquals("True", h['chroot'])
     self.assertEquals("tcp://127.0.0.1:7000", h['recv'])
