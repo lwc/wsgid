@@ -109,7 +109,7 @@ def _create_core_options():
       type=INT, dest="workers"),
 
   add_option('keep-alive', help="Automatically respawn any dead worker. Killink the master process kills any pending worker",\
-      type = BOOL, dest="keep_alive"),
+      type = BOOL, dest="keep_alive", default_value=True),
 
   add_option('chroot', help="Chroot to the value of --app-path, before loading the app.",\
       type = BOOL, dest="chroot"),

@@ -122,7 +122,7 @@ class CliTest(unittest.TestCase):
     self.assertEquals('tcp://127.0.0.1:5001', options.send)
     self.assertEquals(4, options.workers)
     self.assertEquals(True, options.debug)
-    self.assertEquals(False, options.keep_alive)
+    self.assertEquals(True, options.keep_alive) #If one option does now exist in the config file, we get the default value
     self.assertEquals(False, options.chroot)
 
     self.assertEquals({'ENV1': 'VALUE1', 'ENV2': 'VALUE2'}, options.envs)
