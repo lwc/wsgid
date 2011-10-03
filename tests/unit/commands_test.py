@@ -11,7 +11,8 @@ import signal
 
 
 ROOT_PATH = fullpath(__file__)
-APP_PATH = os.path.join(ROOT_PATH, "fixtures/newapp")
+FIXTURES_PATH = os.path.join(ROOT_PATH, 'fixtures')
+APP_PATH = os.path.join(FIXTURES_PATH, "newapp")
 
 class CommandInitTest(unittest.TestCase):
 
@@ -60,7 +61,8 @@ class CommandConfigTest(unittest.TestCase):
   def setUp(self):
     self.config = CommandConfig()
     self.init = CommandInit()
-    self.opt = FakeOptions(app_path=APP_PATH, wsgi_app="app.frontends.wsgi.application",\
+    self.CLEAN_PATH = os.path.join(FIXTURES_PATH, 'clean-path')
+    self.opt = FakeOptions(app_path=self.CLEAN_PATH, wsgi_app="app.frontends.wsgi.application",\
                       debug=True, no_daemon=True, workers=8, keep_alive=True, chroot=True,\
                       recv="tcp://127.0.0.1:7000", send="tcp://127.0.0.1:7001", no_debug=False, no_chroot=False, no_keep_alive=False)
 
@@ -71,7 +73,7 @@ class CommandConfigTest(unittest.TestCase):
   '''
   def test_create_json_if_not_exist(self):
     self.config.run(self.opt)
-    self.assertTrue(os.path.exists(os.path.join(APP_PATH, "wsgid.json")))
+    self.assertTrue(os.path.exists(os.path.join(self.CLEAN_PATH, "wsgid.json")))
 
   '''
    An option passed on the command line, overrides the same option in the
@@ -79,7 +81,7 @@ class CommandConfigTest(unittest.TestCase):
   '''
   def test_override_option(self):
     # Write an config file so we can override some options
-    f = file(os.path.join(APP_PATH, "wsgid.json"), "w+")
+    f = file(os.path.join(self.CLEAN_PATH, "wsgid.json"), "w+")
     simplejson.dump({"recv": "tcp://127.0.0.1:3000", "debug": "True", "workers": "8", "chroot": "True"}, f)
     f.close()
 
@@ -92,7 +94,7 @@ class CommandConfigTest(unittest.TestCase):
     self.config.run(self.opt)
     
     # Check that the options passed on the command line are the new config options
-    h = simplejson.loads(file(os.path.join(APP_PATH, "wsgid.json"), "r+").read())
+    h = simplejson.loads(file(os.path.join(self.CLEAN_PATH, "wsgid.json"), "r+").read())
     self.assertEquals("tcp://127.0.0.1:4000", h['recv'])
     self.assertEquals("True", h['debug'])
     self.assertEquals("8", h['workers'])
@@ -100,11 +102,12 @@ class CommandConfigTest(unittest.TestCase):
 
 
   def test_create_all_options(self):
-    opt = FakeOptions(app_path=APP_PATH, wsgi_app="app.frontends.wsgi.application",\
+    open(os.path.join(self.CLEAN_PATH, 'wsgid.json'), 'w+') #Clean any old config file created by other tests
+    opt = FakeOptions(app_path=self.CLEAN_PATH, wsgi_app="app.frontends.wsgi.application",\
                       debug=True, no_daemon=True, workers=8, keep_alive=True, chroot=True,\
                       recv="tcp://127.0.0.1:7000", send="tcp://127.0.0.1:7001", no_debug=False, no_chroot=False, no_keep_alive=False)
     self.config.run(opt)
-    h = simplejson.loads(file(os.path.join(APP_PATH, "wsgid.json"), "r+").read())
+    h = simplejson.loads(file(os.path.join(self.CLEAN_PATH, "wsgid.json"), "r+").read())
     self.assertEquals("app.frontends.wsgi.application", h['wsgi_app'])
     self.assertEquals("True", h['debug'])
     self.assertEquals("8", h['workers'])
@@ -117,12 +120,12 @@ class CommandConfigTest(unittest.TestCase):
     the no_debug options is an extra option added by the config command
   '''
   def test_disable_boolean_option(self):
-    opt = FakeOptions(app_path=APP_PATH, wsgi_app="app.frontends.wsgi.application",\
+    opt = FakeOptions(app_path=self.CLEAN_PATH, wsgi_app="app.frontends.wsgi.application",\
                       no_debug=True, debug=True, workers=9, keep_alive=True, chroot=True,\
                       recv="tcp://127.0.0.1:7000", send="tcp://127.0.0.1:7001", 
                       no_chroot=False, no_keep_alive=False)
     self.config.run(opt)
-    h = simplejson.loads(file(os.path.join(APP_PATH, "wsgid.json"), "r+").read())
+    h = simplejson.loads(file(os.path.join(self.CLEAN_PATH, "wsgid.json"), "r+").read())
     self.assertEquals("app.frontends.wsgi.application", h['wsgi_app'])
     self.assertEquals("False", h['debug'])
 
