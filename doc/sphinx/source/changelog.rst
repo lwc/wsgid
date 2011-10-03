@@ -5,9 +5,14 @@ Changelog
 Version 0.3.1
 *************
 
- * Implemented a new command: ``restart``, see more at :ref:`commands`
- * Implemented a new command: ``stop``, see more at :ref:`commands`
+ * Implemented a new command: ``restart``, see more at :ref:`commands`;
+ * Implemented a new command: ``stop``, see more at :ref:`commands`;
+ * Bugfix (github issue #6): Command line options are incorrectly parsed when using python 2.7.2;
+ * Internal refactorings
 
+ * And as usual, here is the changelog for the nerds. =)  https://github.com/daltonmatos/wsgid/compare/v0.3.0...v0.3.1
+
+ 
 Version 0.3.0
 *************
 
