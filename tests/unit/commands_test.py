@@ -130,45 +130,39 @@ class CommandConfigTest(unittest.TestCase):
     self.assertEquals("False", h['debug'])
 
 
-class CommandRestartTest(unittest.TestCase):
+class CommandManageTest(unittest.TestCase):
 
   def setUp(self):
-    self.init = CommandInit()
-    self.restart = CommandRestart()
-    self.opt = FakeOptions(app_path=APP_PATH)
+     self.init = CommandInit() 
+     self.manage = CommandManage()
+     self.opt = FakeOptions(app_path=APP_PATH)
+     self.init.run(self.opt)
 
-  def test_kill_master_pids(self):
-    self.init.run(self.opt)
-    open(os.path.join(APP_PATH, "pid/worker/3847.pid"), "w")
-    open(os.path.join(APP_PATH, "pid/worker/4857.pid"), "w")
+  def test_match_command_names_matches(self):
+    self.assertTrue(self.manage.name_matches('stop'))
+    self.assertTrue(self.manage.name_matches('restart'))
+    self.assertFalse(self.manage.name_matches('start'))
 
-    with patch('os.kill'):
-      self.restart.run(self.opt)
-      self.assertEquals(2, os.kill.call_count)
-      self.assertTrue(((3847, 15), {}) in os.kill.call_args_list)
-      self.assertTrue(((4857, 15), {}) in os.kill.call_args_list)
+  def test_command_name(self):
+    self.assertEquals('restart, stop', self.manage.command_name())
 
-class CommandStopTest(unittest.TestCase):
-
-  def setUp(self):
-    self.init = CommandInit()
-    self.stop = CommandStop()
-    self.opt = FakeOptions(app_path=APP_PATH)
-    
-
-  def test_kill_master_pids(self):
-    self.init.run(self.opt)
+  def test_run_stop_command(self):
     open(os.path.join(APP_PATH, "pid/master/2968.pid"), "w")
     open(os.path.join(APP_PATH, "pid/master/9847.pid"), "w")
 
     with patch('os.kill'):
-      self.stop.run(self.opt)
+      self.manage.run(self.opt, command_name = 'stop')
       self.assertEquals(2, os.kill.call_count)
       self.assertTrue(((9847, 15), {}) in os.kill.call_args_list)
       self.assertTrue(((2968, 15), {}) in os.kill.call_args_list)
 
-  def test_command_name(self):
-    self.assertEquals('stop', self.stop.command_name())
+  def test_run_restart_command(self):
+    open(os.path.join(APP_PATH, "pid/worker/3847.pid"), "w")
+    open(os.path.join(APP_PATH, "pid/worker/4857.pid"), "w")
 
-  def test_command_name_matches(self):
-    self.assertTrue(self.stop.name_matches('stop'))
+    with patch('os.kill'):
+      self.manage.run(self.opt, command_name = 'restart')
+      self.assertEquals(2, os.kill.call_count)
+      self.assertTrue(((3847, 15), {}) in os.kill.call_args_list)
+      self.assertTrue(((4857, 15), {}) in os.kill.call_args_list)
+
