@@ -1,6 +1,7 @@
 
 from wsgid.core import Plugin, get_main_logger as logger
 from wsgid.core.command import ICommand
+from wsgid.core.parser import INT, CommandLineOption
 import os
 import signal
 from glob import glob
@@ -27,21 +28,21 @@ class CommandManage(Plugin):
       method(options)
 
   def extra_options(self):
-    return []
+    return [CommandLineOption(name='send-signal', help = 'Choose a custom signal to send to master/workers processes. Default signal is SIGTERM.', type=INT, default_value = signal.SIGTERM)]
 
   def _stop(self, options):
     logger().info("Stopping master processes at {0}...\n".format(options.app_path))
     pids = self._get_pids(options.app_path, 'pid/master')
     for pidnumber in pids:
-      logger().debug("Sending signal {0} to master pid={1}".format(signal.SIGTERM, pidnumber))
-      self._sigkill(pidnumber)
+      logger().debug("Sending signal {0} to master pid={1}".format(options.send_signal, pidnumber))
+      self._sigkill(pidnumber, options.send_signal)
 
   def _restart(self, options):
     logger().info("Restarting worker processes at {0}...\n".format(options.app_path))
     pids = self._get_pids(options.app_path, 'pid/worker')
     for pidnumber in pids:
-      logger().debug("Sending signal {0} to worker pid={1}".format(signal.SIGTERM, pidnumber))
-      self._sigkill(pidnumber)
+      logger().debug("Sending signal {0} to worker pid={1}".format(options.send_signal, pidnumber))
+      self._sigkill(pidnumber, options.send_signal)
 
   def _get_pids(self, base_path, pids_path):
     final_path = os.path.join(base_path, pids_path, '*.pid')
@@ -49,12 +50,12 @@ class CommandManage(Plugin):
     pids = [int(os.path.basename(pid_file).split('.')[0]) for pid_file in pid_files if self._is_pidfile(pid_file)]
     return pids
 
-  def _is_pidfile(self, fileame):
-    return self.REGEX_PIDFILE.match(os.path.basename(fileame)) 
+  def _is_pidfile(self, filename):
+    return self.REGEX_PIDFILE.match(os.path.basename(filename)) 
 
-  def _sigkill(self, pid):
+  def _sigkill(self, pid, signum):
     try:
-      os.kill(pid, signal.SIGTERM)
+      os.kill(pid, signum)
     except:
       logger().debug("Non existant pid {0}".format(pid))
 

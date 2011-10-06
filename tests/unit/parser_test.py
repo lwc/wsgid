@@ -5,6 +5,7 @@
 import unittest
 from wsgid.core import parser
 import sys
+import signal
 
 from wsgid.commands import *
 
@@ -29,3 +30,11 @@ class ParserTest(unittest.TestCase):
     sys.argv[1:] = ['--no-debug', '--app-path=/tmp']
     opts = parser.parse_options()
     self.assertTrue(opts.no_debug)
+
+  '''
+   Tests that the default signal os 15 (SIGTERM)
+  '''
+  def test_default_signal(self):
+    sys.argv[1:] = ['--app-path=/tmp']
+    opts = parser.parse_options()
+    self.assertEquals(signal.SIGTERM, opts.send_signal)

@@ -14,6 +14,10 @@ ROOT_PATH = fullpath(__file__)
 FIXTURES_PATH = os.path.join(ROOT_PATH, 'fixtures')
 APP_PATH = os.path.join(FIXTURES_PATH, "newapp")
 
+#Generates a fresh full path for the given app_name
+def new_app_path(app_name):
+  return os.path.join(FIXTURES_PATH, app_name)
+
 class CommandInitTest(unittest.TestCase):
 
   def setUp(self):
@@ -135,7 +139,7 @@ class CommandManageTest(unittest.TestCase):
   def setUp(self):
      self.init = CommandInit() 
      self.manage = CommandManage()
-     self.opt = FakeOptions(app_path=APP_PATH)
+     self.opt = FakeOptions(app_path=APP_PATH, send_signal=signal.SIGTERM)
      self.init.run(self.opt)
 
   def test_match_command_names_matches(self):
@@ -165,7 +169,22 @@ class CommandManageTest(unittest.TestCase):
       self.assertEquals(2, os.kill.call_count)
       self.assertTrue(((3847, 15), {}) in os.kill.call_args_list)
       self.assertTrue(((4857, 15), {}) in os.kill.call_args_list)
-  
+ 
+  def test_send_custom_signal(self):
+    apppath = new_app_path('custom-signal')
+    opts = FakeOptions(app_path=apppath, send_signal=9)
+    self.init.run(opts)
+    open(os.path.join(apppath, "pid/master/3847.pid"), "w")
+    open(os.path.join(apppath, "pid/worker/3690.pid"), "w")
+
+    with patch('os.kill'):
+      self.manage.run(opts, command_name = 'stop')
+      self.manage.run(opts, command_name = 'restart')
+      self.assertEquals(2, os.kill.call_count)
+      #Check that we sent SIGKILL
+      self.assertEquals( [((3847, 9), {}), ((3690, 9), {})], os.kill.call_args_list)
+
+
   def test_kill_already_dead_pid(self):
     open(os.path.join(APP_PATH, "pid/worker/3847.pid"), "w")
     open(os.path.join(APP_PATH, "pid/worker/4857.pid"), "w")
@@ -182,7 +201,7 @@ class CommandManageTest(unittest.TestCase):
   '''
   def test_invalid_pid_files(self):
     new_path = os.path.join(FIXTURES_PATH, 'crash-app')
-    opts = FakeOptions(app_path=new_path)
+    opts = FakeOptions(app_path=new_path, send_signal=signal.SIGTERM)
     self.init.run(opts)
     open(os.path.join(new_path, "pid/worker/crash.pid"), "w")
 
