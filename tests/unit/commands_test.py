@@ -6,7 +6,7 @@ from wsgid.test import FakeOptions, fullpath
 import os
 import simplejson
 
-from mock import patch
+from mock import patch, Mock
 import signal
 
 
@@ -165,4 +165,29 @@ class CommandManageTest(unittest.TestCase):
       self.assertEquals(2, os.kill.call_count)
       self.assertTrue(((3847, 15), {}) in os.kill.call_args_list)
       self.assertTrue(((4857, 15), {}) in os.kill.call_args_list)
+  
+  def test_kill_already_dead_pid(self):
+    open(os.path.join(APP_PATH, "pid/worker/3847.pid"), "w")
+    open(os.path.join(APP_PATH, "pid/worker/4857.pid"), "w")
+
+    with patch('os.kill'):
+      os.kill = Mock(side_effect=OSError("No such process"))
+      self.manage.run(self.opt, command_name = 'restart')
+      self.assertEquals(2, os.kill.call_count)
+      self.assertTrue(((3847, 15), {}) in os.kill.call_args_list)
+      self.assertTrue(((4857, 15), {}) in os.kill.call_args_list)
+
+  '''
+   Check that wsgid does not crash if we have invalid pid files
+  '''
+  def test_invalid_pid_files(self):
+    new_path = os.path.join(FIXTURES_PATH, 'crash-app')
+    opts = FakeOptions(app_path=new_path)
+    self.init.run(opts)
+    open(os.path.join(new_path, "pid/worker/crash.pid"), "w")
+
+    with patch('os.kill'):
+      self.manage.run(opts, command_name = 'restart')
+      self.assertEquals(0, os.kill.call_count)
+    
 

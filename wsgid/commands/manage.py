@@ -4,11 +4,13 @@ from wsgid.core.command import ICommand
 import os
 import signal
 from glob import glob
+import re
 
 '''
 Includes both stop and restart commands
 '''
 class CommandManage(Plugin):
+  REGEX_PIDFILE = re.compile("[0-9]+\.pid")
 
   SUPPORTED_COMMANDS = ['restart', 'stop']
   implements = [ICommand]
@@ -29,19 +31,31 @@ class CommandManage(Plugin):
 
   def _stop(self, options):
     logger().info("Stopping master processes at {0}...\n".format(options.app_path))
-    final_path = os.path.join(options.app_path, 'pid/master/*.pid') 
-    pids = glob(final_path)
-    for pid in pids:
-      pidnumber = os.path.basename(pid).split('.')[0]
+    pids = self._get_pids(options.app_path, 'pid/master')
+    for pidnumber in pids:
       logger().debug("Sending signal {0} to master pid={1}".format(signal.SIGTERM, pidnumber))
-      os.kill(int(pidnumber), signal.SIGTERM)
+      self._sigkill(pidnumber)
 
   def _restart(self, options):
     logger().info("Restarting worker processes at {0}...\n".format(options.app_path))
-    final_path = os.path.join(options.app_path, 'pid/worker/*.pid') 
-    pids = glob(final_path)
-    for pid in pids:
-      pidnumber = os.path.basename(pid).split('.')[0]
+    pids = self._get_pids(options.app_path, 'pid/worker')
+    for pidnumber in pids:
       logger().debug("Sending signal {0} to worker pid={1}".format(signal.SIGTERM, pidnumber))
-      os.kill(int(pidnumber), signal.SIGTERM)
+      self._sigkill(pidnumber)
+
+  def _get_pids(self, base_path, pids_path):
+    final_path = os.path.join(base_path, pids_path, '*.pid')
+    pid_files = glob(final_path)
+    pids = [int(os.path.basename(pid_file).split('.')[0]) for pid_file in pid_files if self._is_pidfile(pid_file)]
+    return pids
+
+  def _is_pidfile(self, fileame):
+    return self.REGEX_PIDFILE.match(os.path.basename(fileame)) 
+
+  def _sigkill(self, pid):
+    try:
+      os.kill(pid, signal.SIGTERM)
+    except:
+      logger().debug("Non existant pid {0}".format(pid))
+
 
