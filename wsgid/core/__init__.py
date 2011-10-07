@@ -8,6 +8,8 @@ import plugnplay
 from command import ICommand
 import parser
 
+from wsgidapp import WsgidApp
+
 Plugin = plugnplay.Plugin
 
 class StartResponse(object):
