@@ -8,6 +8,7 @@ Version 0.4.0
  * Bugfix (github issue #6): Command line options are incorrectly parsed when using python 2.7.2;
  * Internal refactorings
  * Keep-alive is now the default behavior
+ * Created WsgidApp abstraction around wsgid app folder. See more at :ref:`wsgidapp-object`
 
  * And as usual, here is the changelog for the nerds. =)  https://github.com/daltonmatos/wsgid/compare/v0.3.0...v0.4.0
 
