@@ -202,7 +202,7 @@ The `wsgid.json` would be like this: ::
 restart
 *******
 
-.. versionadded:: 0.3.1
+.. versionadded:: 0.4.0
 
 This command sends a SIGTERM signal to all your worker processes. This, in addition to the keep-alive option can restart your entire application. ::
 
@@ -211,7 +211,7 @@ This command sends a SIGTERM signal to all your worker processes. This, in addit
 stop
 ****
 
-.. versionadded:: 0.3.1
+.. versionadded:: 0.4.0
 
 This command sends a SIGTERM signal to all your master processes. This will completely turn off your entire application, unless you are using some kind of supervisor. ::
 

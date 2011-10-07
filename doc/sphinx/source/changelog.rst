@@ -1,16 +1,15 @@
 Changelog
 =========
 
-
-Version 0.3.1
+Version 0.4.0
 *************
 
- * Implemented a new command: ``restart``, see more at :ref:`commands`;
- * Implemented a new command: ``stop``, see more at :ref:`commands`;
+ * Implemented a new command: ``restart``, ``stop`` with the ability to choose a custom signal to send. See more at :ref:`commands`;
  * Bugfix (github issue #6): Command line options are incorrectly parsed when using python 2.7.2;
  * Internal refactorings
+ * Keep-alive is now the default behavior
 
- * And as usual, here is the changelog for the nerds. =)  https://github.com/daltonmatos/wsgid/compare/v0.3.0...v0.3.1
+ * And as usual, here is the changelog for the nerds. =)  https://github.com/daltonmatos/wsgid/compare/v0.3.0...v0.4.0
 
  
 Version 0.3.0
