@@ -1,10 +1,11 @@
 import os
 from glob import glob
 import re
-REGEX_PIDFILE = re.compile("[0-9]+\.pid")
+
 
 class WsgidApp(object):
 
+  REGEX_PIDFILE = re.compile("[0-9]+\.pid")
 
   def __init__(self, fullpath):
     self.fullpath = fullpath
@@ -18,10 +19,10 @@ class WsgidApp(object):
             and os.path.exists(os.path.join(self.fullpath, 'pid/worker'))
 
   def master_pids(self):
-    return self._get_pids(self.fullpath, 'master/')
+    return sorted(self._get_pids(self.fullpath, 'pid/master/'))
 
   def worker_pids(self):
-    return self._get_pids(self.fullpath, 'worker/')
+    return sorted(self._get_pids(self.fullpath, 'pid/worker/'))
 
 
   def _get_pids(self, base_path, pids_path):

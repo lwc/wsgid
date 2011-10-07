@@ -11,7 +11,7 @@ class WsgidAppTest(unittest.TestCase):
 
   def setUp(self):
     self.init = CommandInit()
-    self.empty_apppath = os.path.join(FIXTURE, 'check-app')
+    self.empty_apppath = os.path.join(FIXTURE, 'empty-app')
     self.init.run(FakeOptions(app_path=self.empty_apppath))
     self.empty_wsgidapp = WsgidApp(self.empty_apppath)
 
@@ -23,5 +23,21 @@ class WsgidAppTest(unittest.TestCase):
 
   def test_return_empty_worker_pids(self):
     self.assertEquals([], self.empty_wsgidapp.worker_pids())
+
+  def test_return_pids(self):
+    app = os.path.join(FIXTURE, 'app-with-pids')
+    self.init.run(FakeOptions(app_path=app))
+    open(os.path.join(app, 'pid/master/3345.pid'), 'w')
+    open(os.path.join(app, 'pid/master/2938.pid'), 'w')
+    open(os.path.join(app, 'pid/master/no-pid.pid'), 'w')
+    
+    open(os.path.join(app, 'pid/worker/8756.pid'), 'w')
+    open(os.path.join(app, 'pid/worker/3948.pid'), 'w')
+    open(os.path.join(app, 'pid/worker/invalid.pid'), 'w')
+
+    wsgidapp = WsgidApp(app)
+    # Invalid pidfiles must be ignored
+    self.assertEquals([2938, 3345], wsgidapp.master_pids())
+    self.assertEquals([3948, 8756], wsgidapp.worker_pids())
 
 
