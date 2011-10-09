@@ -14,7 +14,7 @@ class CommandConfig(Plugin):
   def name_matches(self, cname):
     return "config" == cname
 
-  def run(self, options):
+  def run(self, options, **kwargs):
     config_file = os.path.join(options.app_path, 'wsgid.json')
     f = self._open_config_file(config_file)
     s = f.read()
