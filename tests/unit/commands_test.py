@@ -27,21 +27,25 @@ class CommandInitTest(unittest.TestCase):
   '''
    If the the --app-path does not exist, create.
   '''
-  def test_create_root_folter_if_not_exists(self):
+  @patch('sys.stderr')
+  def test_create_root_folter_if_not_exists(self, *args):
     self.init.run(self.opt)
     self.assertTrue(os.path.exists(APP_PATH), "Did not create the app root folder")
 
-  def test_create_pid_structure(self):
+  @patch('sys.stderr')
+  def test_create_pid_structure(self, *args):
     self.init.run(self.opt)
     self.assertTrue(os.path.exists(os.path.join(APP_PATH, "pid")), "Did not create pid folder")
     self.assertTrue(os.path.exists(os.path.join(APP_PATH, "pid/master")), "Did not create master pid folder")
     self.assertTrue(os.path.exists(os.path.join(APP_PATH, "pid/worker")), "Did not create workers pid folder")
 
-  def test_create_log_dir(self):
+  @patch('sys.stderr')
+  def test_create_log_dir(self, *args):
     self.init.run(self.opt)
     self.assertTrue(os.path.exists(os.path.join(APP_PATH, "logs")), "Did not create logs folder")
 
-  def test_create_app_dir(self):
+  @patch('sys.stderr')
+  def test_create_app_dir(self, *args):
     self.init.run(self.opt)
     self.assertTrue(os.path.exists(os.path.join(APP_PATH, "app")), "Did not create app folder")
 
@@ -49,7 +53,8 @@ class CommandInitTest(unittest.TestCase):
    Checks there is no problem if we run "init" on an already
    inited path
   '''
-  def test_init_an_already_inited_path(self):
+  @patch('sys.stderr')
+  def test_init_an_already_inited_path(self, *args):
     self.init.run(FakeOptions(app_path=APP_PATH))
     os.system("rm -rf {0}".format(os.path.join(APP_PATH, 'pid')))
     self.init.run(FakeOptions(app_path=APP_PATH))
@@ -61,8 +66,8 @@ class CommandInitTest(unittest.TestCase):
 
 class CommandConfigTest(unittest.TestCase):
 
-
-  def setUp(self):
+  @patch('sys.stderr')
+  def setUp(self, *args):
     self.config = CommandConfig()
     self.init = CommandInit()
     self.CLEAN_PATH = os.path.join(FIXTURES_PATH, 'clean-path')
@@ -136,7 +141,8 @@ class CommandConfigTest(unittest.TestCase):
 
 class CommandManageTest(unittest.TestCase):
 
-  def setUp(self):
+  @patch('sys.stderr')
+  def setUp(self, *args):
      self.init = CommandInit() 
      self.manage = CommandManage()
      self.opt = FakeOptions(app_path=APP_PATH, send_signal=signal.SIGTERM)
@@ -169,8 +175,9 @@ class CommandManageTest(unittest.TestCase):
       self.assertEquals(2, os.kill.call_count)
       self.assertTrue(((3847, 15), {}) in os.kill.call_args_list)
       self.assertTrue(((4857, 15), {}) in os.kill.call_args_list)
- 
-  def test_send_custom_signal(self):
+
+  @patch('sys.stderr')
+  def test_send_custom_signal(self, *args):
     apppath = new_app_path('custom-signal')
     opts = FakeOptions(app_path=apppath, send_signal=9)
     self.init.run(opts)
@@ -199,7 +206,8 @@ class CommandManageTest(unittest.TestCase):
   '''
    Check that wsgid does not crash if we have invalid pid files
   '''
-  def test_invalid_pid_files(self):
+  @patch('sys.stderr')
+  def test_invalid_pid_files(self, *args):
     new_path = os.path.join(FIXTURES_PATH, 'crash-app')
     opts = FakeOptions(app_path=new_path, send_signal=signal.SIGTERM)
     self.init.run(opts)

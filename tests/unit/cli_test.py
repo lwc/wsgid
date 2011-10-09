@@ -11,9 +11,12 @@ from wsgid.core import parser
 from wsgid.commands import CommandInit
 from wsgid.test import fullpath, FakeOptions
 
+from mock import patch
+
 class CliTest(unittest.TestCase):
 
-  def setUp(self):
+  @patch('sys.stderr')
+  def setUp(self, *args):
     self.cli = Cli()
     # As we are dealing with a command line test, we have do clean the passed arguments
     # so the tested applications does not try to use them

@@ -5,11 +5,14 @@ from wsgid.commands import CommandInit
 from wsgid.core import WsgidApp
 import os
 
+from mock import patch
+
 FIXTURE = os.path.join(fullpath(__file__), 'fixtures')
 
 class WsgidAppTest(unittest.TestCase):
 
-  def setUp(self):
+  @patch('sys.stderr')
+  def setUp(self, *args):
     self.init = CommandInit()
     self.empty_apppath = os.path.join(FIXTURE, 'empty-app')
     self.init.run(FakeOptions(app_path=self.empty_apppath))
@@ -24,7 +27,8 @@ class WsgidAppTest(unittest.TestCase):
   def test_return_empty_worker_pids(self):
     self.assertEquals([], self.empty_wsgidapp.worker_pids())
 
-  def test_return_pids(self):
+  @patch('sys.stderr')
+  def test_return_pids(self, *args):
     app = os.path.join(FIXTURE, 'app-with-pids')
     self.init.run(FakeOptions(app_path=app))
     open(os.path.join(app, 'pid/master/3345.pid'), 'w')
