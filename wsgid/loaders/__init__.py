@@ -19,7 +19,7 @@ class IAppLoader(plugnplay.Interface):
 
   '''
     Return the WSGI application object for tha app in app_path
-    @ap_path: Path on disk where the app is located. Already inserted into sys.path
+    @ap_path: Path on disk where the app is located. Already inserted into sys.path. This is --app-path + 'app/' 
     @app_full_name: Full qualified name for the WSGI application object
   '''
   def load_app(self, app_path, app_full_name):
