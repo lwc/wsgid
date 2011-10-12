@@ -38,6 +38,7 @@ def load_app(app_path, wsgi_app_full_name):
     return import_object(wsgi_app_full_name)
 
   app_loaders = IAppLoader.implementors()
+  log.debug("Found {0} loaders: {1}".format(len(app_loaders), app_loaders))
   for loader in app_loaders:
     if loader.can_load(app_path):
       log.info("Using AppLoader: %s" % loader.__class__.__name__)

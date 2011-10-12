@@ -64,4 +64,20 @@ class DjangoLoaderTest(unittest.TestCase):
       self.app_loader.load_app(self.wsgid_appfolder_fullpath, 'appname')
       self.assertEquals("mydjangoapp.settings", os.environ['DJANGO_SETTINGS_MODULE'])
 
+  '''
+   Check that we can load a django app that is not the first one (in alphabetical order)
+  '''
+  def test_can_load_the_second_folder(self):
+    with patch('os.listdir'):
+      os.listdir.return_value = ['anotherfolder', 'mydjangoapp']
+      self.assertTrue(self.app_loader.can_load(self.wsgid_appfolder_fullpath))
+      self.app_loader.load_app(self.wsgid_appfolder_fullpath, None)
+      self.assertEquals("mydjangoapp.settings", os.environ['DJANGO_SETTINGS_MODULE'])
+
+
+
+
+
+
+
 
