@@ -8,6 +8,8 @@ import plugnplay
 from command import ICommand
 import parser
 
+from wsgidapp import WsgidApp
+
 Plugin = plugnplay.Plugin
 
 class StartResponse(object):
@@ -66,7 +68,7 @@ def run_command():
         # Remove the command name, since it's not defined
         # in the parser options
         sys.argv.remove(cname)
-        command.run(parser.parse_options(use_config = False))
+        command.run(parser.parse_options(use_config = False), command_name = cname)
         return True
   return False
 

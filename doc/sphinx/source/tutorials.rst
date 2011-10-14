@@ -9,7 +9,7 @@ Loading a Django Application
 ****************************
 
 Suppose you have a django project (http://djangoproject.com) named *myproject*. So probably you have an folder named *myproject*, with your *settings.py*, *manage.py*, and other files.
-To load this app with wsgid you need to copy your application code to the *app* folder. Make sure you copy **your django project folder**, not only the contents. Suppose your wsgid app will be at */var/wsgid/djangoapp*, so you must have inside this folder the correct structure for a wsgid app (see :doc:`appstructure`). 
+To load this app with wsgid you need to copy your application code to the *app* folder. Make sure you copy **your django project folder**, not only its contents. Suppose your wsgid app will be at */var/wsgid/djangoapp*, so you must have inside this folder the correct structure for a wsgid app (see :doc:`appstructure`). 
 
 In this example, we must copy the project folder (*myproject*) to the *app* folder: ::
 
@@ -21,6 +21,9 @@ Now just call wsgid as always: ::
 
     $ wsgid --app-path=/var/wsgid/djangoapp <other-options>
 
+.. versionadded:: 0.4.0
+
+Now you can have as many djangoproject as you like inside wsgid/app folder. Wsgid will load the first project it finds, ordered alphabetically.
 
 Loading a pyroutes Application
 ******************************

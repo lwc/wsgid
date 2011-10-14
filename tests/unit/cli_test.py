@@ -8,21 +8,27 @@ import logging
 import unittest
 from wsgid.core.cli import Cli
 from wsgid.core import parser
+from wsgid.commands import CommandInit
+from wsgid.test import fullpath, FakeOptions
 
+from mock import patch
 
 class CliTest(unittest.TestCase):
 
-  def setUp(self):
+  @patch('sys.stderr')
+  def setUp(self, *args):
     self.cli = Cli()
     # As we are dealing with a command line test, we have do clean the passed arguments
     # so the tested applications does not try to use them
     sys.argv[1:] = []
-    self.fake_app_path = os.path.join('../', os.path.dirname(__file__), 'app-path')
+    self.fake_app_path = os.path.join(fullpath(__file__), 'app-path')
     
     # Ok, not pretty but better than re-implementing this in python
     os.system("rm -rf {0}".format(os.path.join(self.fake_app_path, 'pid/')))
     self.cli.options = parser._parse_args()
     self.cli.options.app_path = self.fake_app_path
+
+    CommandInit().run(FakeOptions(app_path=self.fake_app_path))
 
   def test_nodaemon(self):
     opts = self._parse()
@@ -122,7 +128,7 @@ class CliTest(unittest.TestCase):
     self.assertEquals('tcp://127.0.0.1:5001', options.send)
     self.assertEquals(4, options.workers)
     self.assertEquals(True, options.debug)
-    self.assertEquals(False, options.keep_alive)
+    self.assertEquals(True, options.keep_alive) #If one option does now exist in the config file, we get the default value
     self.assertEquals(False, options.chroot)
 
     self.assertEquals({'ENV1': 'VALUE1', 'ENV2': 'VALUE2'}, options.envs)
@@ -136,6 +142,7 @@ class CliTest(unittest.TestCase):
 
   def test_autocreate_pid_folder_structure(self):
 
+    os.system("rm -rf {0}".format(os.path.join(self.fake_app_path, 'pid/')))
     pid_folder = os.path.join(self.fake_app_path, 'pid')
     master_pid_folder = os.path.join(pid_folder, 'master')
     worker_pid_folder = os.path.join(pid_folder, 'worker')

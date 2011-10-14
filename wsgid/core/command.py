@@ -22,9 +22,13 @@ class ICommand(Interface):
   '''
     Officially runs the command and receive the same options that
     was passed on the command line
+
+    The optional command_name parameter is useful when you have the same
+    implementation for two different commands
+
     Retuns nothing
   '''
-  def run(self, options):
+  def run(self, options, command_name = None):
     pass
 
   

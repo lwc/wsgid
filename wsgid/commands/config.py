@@ -14,7 +14,7 @@ class CommandConfig(Plugin):
   def name_matches(self, cname):
     return "config" == cname
 
-  def run(self, options):
+  def run(self, options, **kwargs):
     config_file = os.path.join(options.app_path, 'wsgid.json')
     f = self._open_config_file(config_file)
     s = f.read()
@@ -26,7 +26,7 @@ class CommandConfig(Plugin):
     self._override_if_not_none('wsgi_app', cfg_values, options.wsgi_app)
     self._override_if_not_none('debug', cfg_values, options.debug)
     if options.workers > 1:
-      self._override_if_not_none('workers', cfg_values, options.workers)
+      self._override_if_not_none('workers', cfg_values, options.workers, convert_func=int)
     self._override_if_not_none('keep_alive', cfg_values, options.keep_alive)
     self._override_if_not_none('chroot', cfg_values, options.chroot)
     self._override_if_not_none('recv', cfg_values, options.recv)
@@ -51,6 +51,6 @@ class CommandConfig(Plugin):
       return open(path, "r+")
     return open(path, "w+")
 
-  def _override_if_not_none(self, opt_name, dest, value):
+  def _override_if_not_none(self, opt_name, dest, value, convert_func=str):
     if value:
-      dest[opt_name] = str(value)
+      dest[opt_name] = convert_func(value)

@@ -16,7 +16,7 @@ class CommandInit(Plugin):
   def name_matches(self, cname):
     return "init" == cname
 
-  def run(self, options):
+  def run(self, options, **kwargs):
     sys.stderr.write("Initializing wsgid app folder in {0}...\n".format(options.app_path))
     self._create_if_not_exist(options.app_path)
     self._create_if_not_exist(os.path.join(options.app_path, 'pid'))
