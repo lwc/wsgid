@@ -217,6 +217,21 @@ This command sends a SIGTERM signal to all your master processes. This will comp
 
     $ wsgid stop --app-path=/path/to/your/app
 
+status
+******
+
+.. versionadded:: 0.5.0
+
+This command reports on stdout the current status of your wsgid instances. Note that it will report "Stopped" even if you have a master process but no worker processes. This is because the master process does not respond to requests. ::
+
+    $ wsgid status --app-path=/path/to/your/app
+    Status: Running
+    Master pid(s): 17261
+    Worker pid(s): 9847(dead), 17262
+
+Any dead pid is reported as "(dead)".
+
+
 
 
 
