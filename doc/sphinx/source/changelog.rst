@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Version 0.5.0
+*************
+
+ * Implemented the ``status`` command. More at :ref:`commands`;
+
 Version 0.4.0
 *************
 

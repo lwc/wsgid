@@ -217,4 +217,78 @@ class CommandManageTest(unittest.TestCase):
       self.manage.run(opts, command_name = 'restart')
       self.assertEquals(0, os.kill.call_count)
     
+class CommandStatusTest(unittest.TestCase):
+
+  @patch('sys.stderr')
+  def setUp(self, *args):
+     self.init = CommandInit() 
+     self.manage = CommandManage()
+     self.new_path = os.path.join(FIXTURES_PATH, 'status-command')
+     self.opt = FakeOptions(app_path=self.new_path, send_signal=signal.SIGTERM)
+     self.init.run(self.opt)
+
+
+  def test_command_name(self):
+    self.assertEquals('status', CommandStatus().command_name())
+
+  def test_command_name_matches(self):
+    self.assertTrue(CommandStatus().name_matches('status'))
+    self.assertFalse(CommandStatus().name_matches('ostatus'))
+
+  def test_list_master_pids(self):
+    with patch('os.kill'): #So od.kill reports any pid as "running"
+      with patch('sys.stdout'):
+        open(os.path.join(self.new_path, "pid/master/3847.pid"), "w")
+        open(os.path.join(self.new_path, "pid/worker/4857.pid"), "w")
+        CommandStatus().run(self.opt)
+        self.assertEquals(3, sys.stdout.write.call_count)
+        self.assertEquals([(("Status: Running\n",), {}), 
+                           (("Master pid(s): 3847\n",), {}), 
+                           (("Worker pid(s): 4857\n",), {})], sys.stdout.write.call_args_list)
+
+  def test_list_worker_pids(self):
+    path = os.path.join(FIXTURES_PATH, 'worker-pids-app')
+    with patch('sys.stderr'):
+      CommandInit().run(FakeOptions(app_path=path))
+
+    with patch('os.kill'): #So os.kill reports any pid as "running"
+      with patch('sys.stdout'):
+       open(os.path.join(path, "pid/worker/3847.pid"), "w")
+       open(os.path.join(path, "pid/worker/3948.pid"), "w")
+       open(os.path.join(path, "pid/worker/4857.pid"), "w")
+       CommandStatus().run(FakeOptions(app_path=path))
+       self.assertEquals(3, sys.stdout.write.call_count)
+       self.assertEquals([(("Status: Running\n",), {}), 
+                          (("Master pid(s): \n",), {}),
+                          (("Worker pid(s): 3847, 3948, 4857\n",), {})], sys.stdout.write.call_args_list)
+
+  def test_status_when_no_worker_pids(self):
+    path = os.path.join(FIXTURES_PATH, 'noworker-pids-app')
+    with patch('sys.stderr'):
+      CommandInit().run(FakeOptions(app_path=path))
+
+    with patch('sys.stdout'):
+     open(os.path.join(path, "pid/master/3847.pid"), "w")
+     CommandStatus().run(FakeOptions(app_path=path))
+     self.assertEquals(3, sys.stdout.write.call_count)
+     self.assertEquals([(("Status: Stopped\n",), {}), 
+                        (("Master pid(s): 3847\n",), {}),
+                        (("Worker pid(s): \n",), {})], sys.stdout.write.call_args_list)
+
+  def test_check_pids_are_running(self):
+    path = os.path.join(FIXTURES_PATH, 'check-running-pids-app')
+    with patch('sys.stderr'):
+      CommandInit().run(FakeOptions(app_path=path))
+
+    with patch('sys.stdout'):
+     with patch('os.kill'):
+       os.kill.side_effect = OSError("No such process")
+       open(os.path.join(path, "pid/master/3847.pid"), "w")
+       # Even having a valid worker pid, the final status must be Stopped becaus this process does not exist
+       open(os.path.join(path, "pid/worker/2845.pid"), "w")
+       CommandStatus().run(FakeOptions(app_path=path))
+       self.assertEquals(3, sys.stdout.write.call_count)
+       self.assertEquals([(("Status: Stopped\n",), {}), 
+                          (("Master pid(s): 3847\n",), {}),
+                          (("Worker pid(s): 2845(dead)\n",), {})], sys.stdout.write.call_args_list)
 
