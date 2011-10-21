@@ -7,7 +7,10 @@ from command import ICommand
 
 BOOL, STRING, LIST, INT = range(4)
 
-TYPES = {INT: 'int'}
+TYPES = {INT: int,
+         BOOL: bool,
+         LIST: list,
+         STRING: str}
 
 def _parse_args():
   import platform
@@ -30,7 +33,11 @@ def _parse_args():
     
     # Add wsgid core options
     for opt in _create_core_options():
-      parser.add_argument(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
+      if opt.type is bool:
+        # We cannot pass type= when action is 'store_true', go figure!
+        parser.add_argument(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
+      else:
+        parser.add_argument(opt.name, help = opt.help, type=opt.type, dest = opt.dest, action = opt.action, default = opt.default_value)
     return parser.parse_args()
 
 def _create_optparse(prog, description, version):
@@ -47,19 +54,19 @@ def _create_optparse(prog, description, version):
 
     for opt in _create_core_options():
       optparser.add_option(opt.name, help = opt.help, \
-                           type = opt.type, action = opt.action, \
+                           action = opt.action, \
                            dest = opt.dest, default = opt.default_value)
     return optparser
 
 class CommandLineOption(object):
 
-  def __init__(self, name = None, shortname = None, help = None, type = 'string', dest = None, default_value = None):
+  def __init__(self, name = None, shortname = None, help = None, type = STRING, dest = None, default_value = True):
     self.name = "--{0}".format(name)
     self.shortname = shortname
     self.help = help
     self.action = 'store'
-    self.type = None
-    
+    self.type = TYPES.get(type, str)
+
     if type is BOOL and default_value is False:
       self.action = 'store_false'
     elif type is BOOL:
@@ -67,9 +74,6 @@ class CommandLineOption(object):
 
     if type is LIST:
       self.action = 'append'
-
-    if TYPES.has_key(type):
-      self.type = TYPES[type]
 
     self.dest = dest
     if not dest:

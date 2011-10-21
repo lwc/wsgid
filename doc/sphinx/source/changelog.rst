@@ -6,6 +6,14 @@ Version 0.5.0
 
  * Implemented the ``status`` command. More at :ref:`commands`;
 
+
+Version 0.4.1
+*************
+
+ * Hotfix for bug #6, that was actually not solved.
+ 
+ * Commit log:  https://github.com/daltonmatos/wsgid/compare/v0.4.0...v0.4.1
+
 Version 0.4.0
 *************
 
