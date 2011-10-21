@@ -7,7 +7,10 @@ from command import ICommand
 
 BOOL, STRING, LIST, INT = range(4)
 
-TYPES = {INT: 'int'}
+TYPES = {INT: int,
+         BOOL: bool,
+         LIST: list,
+         STRING: str}
 
 def _parse_args():
   import platform
@@ -47,18 +50,17 @@ def _create_optparse(prog, description, version):
 
     for opt in _create_core_options():
       optparser.add_option(opt.name, help = opt.help, \
-                           type = opt.type, action = opt.action, \
+                           action = opt.action, \
                            dest = opt.dest, default = opt.default_value)
     return optparser
 
 class CommandLineOption(object):
 
-  def __init__(self, name = None, shortname = None, help = None, type = 'string', dest = None, default_value = None):
+  def __init__(self, name = None, shortname = None, help = None, type = 'string', dest = None, default_value = True):
     self.name = "--{0}".format(name)
     self.shortname = shortname
     self.help = help
     self.action = 'store'
-    self.type = None
     
     if type is BOOL and default_value is False:
       self.action = 'store_false'
