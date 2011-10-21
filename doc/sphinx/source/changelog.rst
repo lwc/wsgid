@@ -1,6 +1,15 @@
 Changelog
 =========
 
+
+Version 0.4.1
+*************
+
+ * Hotfix for bug #6, that was actually not solved.
+ 
+ * Commit log:  https://github.com/daltonmatos/wsgid/compare/v0.4.0...v0.4.1
+
+
 Version 0.4.0
 *************
 
