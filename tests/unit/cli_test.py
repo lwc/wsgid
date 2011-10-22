@@ -11,7 +11,12 @@ from wsgid.core import parser
 from wsgid.commands import CommandInit
 from wsgid.test import fullpath, FakeOptions
 
-from mock import patch
+import daemon
+
+from mock import patch, Mock, MagicMock
+
+ROOT_PATH = fullpath(__file__)
+FIXTURES_PATH = os.path.join(ROOT_PATH, 'fixtures')
 
 class CliTest(unittest.TestCase):
 
@@ -174,5 +179,26 @@ class CliTest(unittest.TestCase):
 
     self.cli._remove_pid(42, self.cli.MASTER)
     self.assertFalse(os.path.exists(pid_file))
+
+  '''
+   Doing this wsgid is able to run with a process supervisor.
+   See: issue/20 at github
+  '''
+  @patch('sys.stderr')
+  def test_start_workers_when_nodaemon(self, *args):
+    path = os.path.join(FIXTURES_PATH, 'nodaemon-app')
+    initcmd = CommandInit()
+    initcmd.run(FakeOptions(app_path=path))
+    with patch('daemon.DaemonContext', new=MagicMock()):
+      with patch.object(Cli, '_create_worker'):
+        with patch.object(Cli, 'validate_input_params'):
+          with patch.object(Cli, '_wait_workers'):
+            daemon.DaemonContext.__enter__ = Mock()
+            daemon.DaemonContext.__exit__ = Mock()
+            sys.argv[1:] = ['--workers=3', '--no-daemon', '--app-path={0}'.format(path)]
+            cli = Cli()
+            cli.run()
+            self.assertEquals(3, cli._create_worker.call_count)
+            self.assertEquals(1, cli._wait_workers.call_count)
 
 

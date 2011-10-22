@@ -61,16 +61,13 @@ class Cli(object):
         self._write_pid(os.getpid(), self.MASTER)
         self._load_plugins(options)
 
-        if options.nodaemon:
-          self._call_wsgid(options)
-        else:
-          self.workers = []
-          for worker in range(options.workers):
-            pid = self._create_worker(options)
-            self.workers.append(pid)
-          #Now we can register the master process SIGTERM handler
-          signal.signal(signal.SIGTERM, self._sigterm_handler)
-          self._wait_workers()
+        self.workers = []
+        for worker in range(options.workers):
+          pid = self._create_worker(options)
+          self.workers.append(pid)
+        #Now we can register the master process SIGTERM handler
+        signal.signal(signal.SIGTERM, self._sigterm_handler)
+        self._wait_workers()
     except Exception, e:
       import traceback
       exc = sys.exc_info()
