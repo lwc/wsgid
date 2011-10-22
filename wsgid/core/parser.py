@@ -106,6 +106,9 @@ def _create_core_options():
   add_option('debug', help="Runs wsgid in debug mode. Lots of logging.",\
       dest="debug", type = BOOL),
 
+  add_option('stdout', help="Redirect all logs to stdout. Use this with --no-daemon to see the logs on the same terminal wsgid was started",\
+      dest="stdout", type = BOOL),
+
   add_option('no-daemon', help="Runs wsgid in the foreground, printing all logs to stderr",\
       type=BOOL, dest="nodaemon"),
 

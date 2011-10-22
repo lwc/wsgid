@@ -5,7 +5,7 @@ Version 0.5.0
 *************
 
  * Implemented the ``status`` command. More at :ref:`commands`;
-
+ * New command line option: ``--stdout`` to redirect all logs to stdout;
 
 Version 0.4.1
 *************
