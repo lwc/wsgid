@@ -27,6 +27,6 @@ pip-log.txt
 .tox
 
 # Data created by the unit tests
-tests/unit/app-path/
+tests/unit/app-path/logs/
 tests/unit/fixtures/
 

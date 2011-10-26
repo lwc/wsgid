@@ -77,6 +77,12 @@ no-dameon
 
 Used mainly for debug purposes. When this option is passed wsgid will not fork to background and will write all logs to stderr.
 
+stdout
+******
+.. versionadded:: 0.5.0
+
+Redirect all log output to stdout. This is useful when you want to test things out. Use it with ``--no-daemon`` so you can see all log messages right on the you started wsgid.
+
 workers
 *******
   ``--workers=N``

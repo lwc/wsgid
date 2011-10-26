@@ -106,6 +106,9 @@ def _create_core_options():
   add_option('debug', help="Runs wsgid in debug mode. Lots of logging.",\
       dest="debug", type = BOOL),
 
+  add_option('stdout', help="Redirect all logs to stdout. Use this with --no-daemon to see the logs on the same terminal wsgid was started",\
+      dest="stdout", type = BOOL),
+
   add_option('no-daemon', help="Runs wsgid in the foreground, printing all logs to stderr",\
       type=BOOL, dest="nodaemon"),
 
@@ -151,6 +154,7 @@ def parse_options(use_config = True):
       options.wsgi_app = _return_str(json_cfg.setdefault('wsgi_app', options.wsgi_app))
       options.nodaemon = _return_str(json_cfg.setdefault('nodaemon', options.nodaemon))
       options.chroot = _return_bool(json_cfg.setdefault('chroot', options.chroot))
+      options.stdout = _return_bool(json_cfg.setdefault('stdout', options.stdout))
       options.envs = json_cfg.setdefault('envs', {})
 
   return options
