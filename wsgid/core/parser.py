@@ -154,6 +154,7 @@ def parse_options(use_config = True):
       options.wsgi_app = _return_str(json_cfg.setdefault('wsgi_app', options.wsgi_app))
       options.nodaemon = _return_str(json_cfg.setdefault('nodaemon', options.nodaemon))
       options.chroot = _return_bool(json_cfg.setdefault('chroot', options.chroot))
+      options.stdout = _return_bool(json_cfg.setdefault('stdout', options.stdout))
       options.envs = json_cfg.setdefault('envs', {})
 
   return options

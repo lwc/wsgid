@@ -135,6 +135,7 @@ class CliTest(unittest.TestCase):
     self.assertEquals(True, options.debug)
     self.assertEquals(True, options.keep_alive) #If one option does now exist in the config file, we get the default value
     self.assertEquals(False, options.chroot)
+    self.assertEquals(True, options.stdout)
 
     self.assertEquals({'ENV1': 'VALUE1', 'ENV2': 'VALUE2'}, options.envs)
 

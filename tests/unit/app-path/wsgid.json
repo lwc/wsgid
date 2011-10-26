@@ -4,6 +4,7 @@
 "debug": "true",
 "workers": "4",
 "chroot": "false",
+"stdout": "True",
 "envs":
     {"ENV1": "VALUE1",
      "ENV2": "VALUE2"}
