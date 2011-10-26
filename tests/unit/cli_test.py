@@ -7,7 +7,7 @@ import logging
 
 import unittest
 from wsgid.core.cli import Cli
-from wsgid.core import parser
+from wsgid.core import parser, WsgidApp
 from wsgid.commands import CommandInit
 from wsgid.test import fullpath, FakeOptions
 
@@ -223,5 +223,27 @@ class CliTest(unittest.TestCase):
       cli = Cli()
       cli._set_loggers(opts)
       self.assertEquals(1, logging.StreamHandler.call_count)
+
+  def test_clean_pid_files_on_keyboard_interrupt(self):
+    path = os.path.join(FIXTURES_PATH, 'clean-pids-app')
+    initcmd = CommandInit()
+    opts = FakeOptions(app_path=path)
+    initcmd.run(opts)
+    open(os.path.join(path, 'pid/master/3340.pid'), 'w')
+    open(os.path.join(path, 'pid/worker/2736.pid'), 'w')
+    open(os.path.join(path, 'pid/worker/3847.pid'), 'w')
+    with patch('os.wait'):
+      with patch('os.getpid'):
+          os.getpid.side_effect = lambda: 3340
+          os.wait.side_effect = KeyboardInterrupt()
+          cli = Cli()
+          cli.options = opts
+          cli.log = Mock()
+          cli.workers = [2736, 3847]
+          cli._wait_workers()
+          app = WsgidApp(path)
+          self.assertEquals([], app.master_pids())
+          self.assertEquals([], app.worker_pids())
+ 
 
 

@@ -127,19 +127,25 @@ class Cli(object):
 
   def _wait_workers(self):
     while True:
-      dead_worker = os.wait()
-      self.workers.remove(dead_worker[0])
-      self.log.info("Worker finished, pid={pid} retval={retval}".format(pid=dead_worker[0], retval=dead_worker[1]))
-      self._remove_pid(dead_worker[0], self.WORKER)
+      try:
+        dead_worker = os.wait()
+        self.workers.remove(dead_worker[0])
+        self.log.info("Worker finished, pid={pid} retval={retval}".format(pid=dead_worker[0], retval=dead_worker[1]))
+        self._remove_pid(dead_worker[0], self.WORKER)
 
-      if self.options.keep_alive:
-        new_worker = self._create_worker(self.options)
-        self.workers.append(new_worker)
-        self.log.debug("Current active workers={workers}".format(workers=self.workers))
-      if not self.workers:
-        self.log.debug("No more workers to wait for and no keep alive requested, exiting...")
+        if self.options.keep_alive:
+          new_worker = self._create_worker(self.options)
+          self.workers.append(new_worker)
+          self.log.debug("Current active workers={workers}".format(workers=self.workers))
+        if not self.workers:
+          self.log.debug("No more workers to wait for and no keep alive requested, exiting...")
+          self._remove_pid(os.getpid(), self.MASTER)
+          sys.exit(0)
+      except KeyboardInterrupt, k:
+        for worker in self.workers:
+          self._remove_pid(worker, self.WORKER)
         self._remove_pid(os.getpid(), self.MASTER)
-        sys.exit(0)
+        return
 
   def _load_plugins(self, options):
     if options.loader_dir:
