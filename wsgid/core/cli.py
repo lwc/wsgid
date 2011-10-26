@@ -225,7 +225,7 @@ class Cli(object):
     if options.chroot:
       log_path = os.path.join('/', 'logs/wsgid.log')
     
-    if options.nodaemon:
+    if options.nodaemon and options.stdout:
       console = logging.StreamHandler()
     else:
       log_path = os.path.join(options.app_path or '/tmp', 'logs/wsgid.log')

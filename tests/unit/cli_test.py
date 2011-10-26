@@ -201,4 +201,26 @@ class CliTest(unittest.TestCase):
             self.assertEquals(3, cli._create_worker.call_count)
             self.assertEquals(1, cli._wait_workers.call_count)
 
+  '''
+   When using only --do-daemon (without --stdout) logs must be
+   redirected to log file.
+  '''
+  def test_daemon_should_create_normal_logs(self):
+    opts = FakeOptions(app_path="/some/path", nodaemon=True, stdout=False, debug=None, chroot=None)
+    with patch('logging.FileHandler'):
+      cli = Cli()
+      cli._set_loggers(opts)
+      self.assertEquals(1, logging.FileHandler.call_count)
+      self.assertEquals((("/some/path/logs/wsgid.log",), {}), logging.FileHandler.call_args)
+
+  '''
+   When we pass --stdout all logs must be pointed to stdout.
+  '''
+  def test_create_log_for_stdout(self):
+    opts = FakeOptions(app_path="/some/path", nodaemon=True, stdout=True, debug=None, chroot=None)
+    with patch('logging.StreamHandler'):
+      cli = Cli()
+      cli._set_loggers(opts)
+      self.assertEquals(1, logging.StreamHandler.call_count)
+
 
