@@ -9,7 +9,7 @@ setup(
   name=__progname__,
   version=__version__,
   url="https://github.com/daltonmatos/wsgid",
-  license="GPLv2",
+  license="3-BSD",
   description=__description__,
   author="Dalton Barreto",
   author_email="daltonmatos@gmail.com",
@@ -18,7 +18,7 @@ setup(
   scripts=['scripts/wsgid'],
   install_requires = ['plugnplay', 'pyzmq', 'python-daemon', 'simplejson'],
   classifiers = [
-    "License :: OSI Approved :: GNU General Public License (GPL)",
+    "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Topic :: Software Development :: Libraries :: Application Frameworks"
