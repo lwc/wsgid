@@ -15,7 +15,7 @@ from wsgid.commands import *
 class ParserTest(unittest.TestCase):
 
   '''
-    Test if we correctly parse options added by sub-commands 
+    Test if we correctly parse options added by sub-commands
     --no-daemon is added by the config command
   '''
   def test_parse_aditional_options(self):
@@ -45,6 +45,15 @@ class ParserTest(unittest.TestCase):
       sys.argv[1:] = ['--workers=4']
       opts = parser.parse_options()
       self.assertEquals(4, opts.workers)
+
+  def test_parse_default_workers_as_integer(self):
+    with patch('platform.python_version'):
+      platform.python_version.return_value = '2.7.1'
+      sys.argv[1:] = []
+      opts = parser.parse_options()
+      self.assertEquals(1, opts.workers)
+
+
 
 
 

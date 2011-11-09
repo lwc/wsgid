@@ -30,7 +30,7 @@ def _parse_args():
       # Add the custom command aditional options
       for opt in command.extra_options():
         option_group.add_argument(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
-    
+
     # Add wsgid core options
     for opt in _create_core_options():
       if opt.type is bool:
@@ -47,7 +47,7 @@ def _create_optparse(prog, description, version):
     for command in commands:
       name = command.command_name()
       option_group = optparse.OptionGroup(optparser, "Options added by the {0} subcommand".format(name))
-      
+
       # Add the custom command aditional options
       for opt in command.extra_options():
         option_group.add_option(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
@@ -110,7 +110,7 @@ def _create_core_options():
       type=BOOL, dest="nodaemon"),
 
   add_option('workers', help="Starts a fixed number of wsgid processes. Defaults to 1",\
-      type=INT, dest="workers"),
+      type=INT, dest="workers", default_value = 1),
 
   add_option('keep-alive', help="Automatically respawn any dead worker. Killink the master process kills any pending worker",\
       type = BOOL, dest="keep_alive", default_value=True),
