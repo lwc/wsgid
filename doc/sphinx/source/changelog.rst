@@ -7,7 +7,14 @@ Version 0.5.0
  * Implemented the ``status`` command. More at :ref:`commands`;
  * New command line option: ``--stdout`` to redirect all logs to stdout;
 
-Version 0.4.1
+Version 0.4.2
+*************
+
+ * Hotfix for default --workers value. Defaults to 1
+ 
+ * Commit log:  https://github.com/daltonmatos/wsgid/compare/v0.4.1...v0.4.2
+
+ Version 0.4.1
 *************
 
  * Hotfix for bug #6, that was actually not solved.
