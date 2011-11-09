@@ -1,7 +1,9 @@
 #encoding: utf-8
 
 from .. import __version__, __progname__, __description__
+
 import os
+import argparse
 
 from command import ICommand
 
@@ -13,7 +15,6 @@ TYPES = {INT: int,
          STRING: str}
 
 def _parse_args():
-  import argparse
   parser = argparse.ArgumentParser(prog=__progname__, description=__description__, version=__version__, conflict_handler='resolve' )
   commands = ICommand.implementors()
   for command in commands:
