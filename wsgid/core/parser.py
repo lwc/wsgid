@@ -1,7 +1,9 @@
 #encoding: utf-8
 
 from .. import __version__, __progname__, __description__
+
 import os
+import argparse
 
 from command import ICommand
 
@@ -13,50 +15,23 @@ TYPES = {INT: int,
          STRING: str}
 
 def _parse_args():
-  import platform
-  pyversion = platform.python_version()
-  if pyversion < '2.7':
-    optparser = _create_optparse(prog=__progname__, description=__description__,\
-                                      version= __version__)
-    (opts, args) = optparser.parse_args()
-    return opts
-  else:
-    import argparse
-    parser = argparse.ArgumentParser(prog=__progname__, description=__description__, version=__version__, conflict_handler='resolve' )
-    commands = ICommand.implementors()
-    for command in commands:
-      name = command.command_name()
-      option_group = parser.add_argument_group(description="Options added by the {0} subcommand".format(name))
-      # Add the custom command aditional options
-      for opt in command.extra_options():
-        option_group.add_argument(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
+  parser = argparse.ArgumentParser(prog=__progname__, description=__description__, version=__version__, conflict_handler='resolve' )
+  commands = ICommand.implementors()
+  for command in commands:
+    name = command.command_name()
+    option_group = parser.add_argument_group(description="Options added by the {0} subcommand".format(name))
+    # Add the custom command aditional options
+    for opt in command.extra_options():
+      option_group.add_argument(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
 
-    # Add wsgid core options
-    for opt in _create_core_options():
-      if opt.type is bool:
-        # We cannot pass type= when action is 'store_true', go figure!
-        parser.add_argument(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
-      else:
-        parser.add_argument(opt.name, help = opt.help, type=opt.type, dest = opt.dest, action = opt.action, default = opt.default_value)
-    return parser.parse_args()
-
-def _create_optparse(prog, description, version):
-    import optparse
-    optparser = optparse.OptionParser(prog=prog, description=description, version=version)
-    commands = ICommand.implementors()
-    for command in commands:
-      name = command.command_name()
-      option_group = optparse.OptionGroup(optparser, "Options added by the {0} subcommand".format(name))
-
-      # Add the custom command aditional options
-      for opt in command.extra_options():
-        option_group.add_option(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
-
-    for opt in _create_core_options():
-      optparser.add_option(opt.name, help = opt.help, \
-                           action = opt.action, \
-                           dest = opt.dest, default = opt.default_value)
-    return optparser
+  # Add wsgid core options
+  for opt in _create_core_options():
+    if opt.type is bool:
+      # We cannot pass type= when action is 'store_true', go figure!
+      parser.add_argument(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
+    else:
+      parser.add_argument(opt.name, help = opt.help, type=opt.type, dest = opt.dest, action = opt.action, default = opt.default_value)
+  return parser.parse_args()
 
 class CommandLineOption(object):
 
