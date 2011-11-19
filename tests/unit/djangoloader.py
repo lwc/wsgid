@@ -42,6 +42,19 @@ class DjangoLoaderTest(unittest.TestCase):
       self.assertTrue(self.app_loader.can_load(self.wsgid_appfolder_fullpath))
 
   '''
+   A valid django app must have urls.py
+  '''
+  def test_django_folder_must_have_urls(self):
+      self.fail()
+
+  '''
+   A valid django folder must be importable, so we have to check
+   that __init__.py exists.
+  '''
+  def test_django_folder_must_have_init(self):
+      self.fail()
+
+  '''
    Check if we return False for a non-django app folder
   '''
   def test_not_django_wsgid_app_folder(self):
@@ -74,6 +87,32 @@ class DjangoLoaderTest(unittest.TestCase):
       self.app_loader.load_app(self.wsgid_appfolder_fullpath, None)
       self.assertEquals("mydjangoapp.settings", os.environ['DJANGO_SETTINGS_MODULE'])
 
+  '''
+   Now wsgid loads a django app using settings.configure(). Because of this
+   we must set ROOT_URLCONF to the same value that we had on DJANGO_SETTINGS_MODULE
+  '''
+  def test_load_app_with_settings_configure(self):
+      self.fail()
+
+  '''
+   Any setting inside settngs.py that are *not* mentioned on django.json must
+   remain available when we do:
+       from django.conf settings
+       settings.MY_NON_OVERRIDEN_OPTION
+  '''
+  def test_custom_options_must_remain(self):
+      self.fail()
+
+  '''
+   If we have a TEST_OPT inside settings.py and this same
+   options inside wsgidappfolder/django.json, the JSON version
+   must be available at:
+       from django.conf import settings
+       settings.TEST_OPT
+   after DjangoAppLodare loads this app.
+  '''
+  def test_override_existing_settings_option(self):
+      self.fail()
 
 
 
