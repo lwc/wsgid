@@ -89,13 +89,6 @@ class DjangoLoaderTest(unittest.TestCase):
       self.assertEquals("mydjangoapp.settings", os.environ['DJANGO_SETTINGS_MODULE'])
 
   '''
-   Now wsgid loads a django app using settings.configure(). Because of this
-   we must set ROOT_URLCONF to the same value that we had on DJANGO_SETTINGS_MODULE
-  '''
-  def test_load_app_with_settings_configure(self):
-      self.fail()
-
-  '''
    Any setting inside settngs.py that are *not* mentioned on django.json must
    remain available when we do:
        from django.conf settings
