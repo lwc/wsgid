@@ -3,14 +3,17 @@
 
 import unittest
 import os
+import sys
 
 from wsgid.loaders.djangoloader import DjangoAppLoader
 from wsgid.test import fullpath
-import django.core.handlers.wsgi
 from mock import patch
+from django.conf import settings
+import django
 
 FIXTURE = fullpath(__file__)
 WSGID_APP_NAME = 'django-wsgid-app'
+DJANGOAPP_NO_INIT = 'djangonoinit'
 
 class DjangoLoaderTest(unittest.TestCase):
 
@@ -19,6 +22,9 @@ class DjangoLoaderTest(unittest.TestCase):
     self.abs_app_path = os.path.join(FIXTURE, WSGID_APP_NAME)
     self.wsgid_appfolder_fullpath = os.path.join(self.abs_app_path, 'app/')
     self.app_loader = DjangoAppLoader()
+
+  def tearDown(self):
+    setattr(settings, '_wrapped', None) #So django thinks we did not configured yet
 
   '''
    Ensure we can load a djangoapp even with hidden folders
@@ -38,21 +44,16 @@ class DjangoLoaderTest(unittest.TestCase):
   '''
    Check that we can recognize a simple wsgid app with a django app inside
   '''
-  def test_can_load_django_app(self):
+  def test_can_load_django_app(self, *args):
       self.assertTrue(self.app_loader.can_load(self.wsgid_appfolder_fullpath))
-
-  '''
-   A valid django app must have urls.py
-  '''
-  def test_django_folder_must_have_urls(self):
-      self.fail()
 
   '''
    A valid django folder must be importable, so we have to check
    that __init__.py exists.
   '''
   def test_django_folder_must_have_init(self):
-      self.fail()
+      djangoapp_path = os.path.join(FIXTURE, 'wsgidapp-noinit/app')
+      self.assertFalse(self.app_loader.can_load(djangoapp_path))
 
   '''
    Check if we return False for a non-django app folder
@@ -72,7 +73,7 @@ class DjangoLoaderTest(unittest.TestCase):
       dirs = ['mydjangoapp', 'otherdjangoapp']
       os.listdir.return_value = dirs
       self.assertTrue(self.app_loader.can_load(self.wsgid_appfolder_fullpath))
-      
+
       os.listdir.return_value = list(reversed(dirs))
       self.app_loader.load_app(self.wsgid_appfolder_fullpath, 'appname')
       self.assertEquals("mydjangoapp.settings", os.environ['DJANGO_SETTINGS_MODULE'])

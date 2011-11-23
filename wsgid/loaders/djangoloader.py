@@ -23,7 +23,8 @@ class DjangoAppLoader(Plugin):
     log.debug("{0} Possible valid djangoapp folders: {1}".format(len(dirs), dirs))
     for d in dirs:
       settings_path = os.path.join(app_path, d, 'settings.py')
-      if os.path.exists(settings_path):
+      init_path = os.path.join(app_path, d, '__init__.py')
+      if os.path.exists(settings_path) and os.path.exists(init_path):
         return d
     return None
 
@@ -33,15 +34,15 @@ class DjangoAppLoader(Plugin):
 
   def load_app(self, app_path, app_full_name):
     logger = get_main_logger()
-    
+
     site_name = self._first_djangoproject_dir(app_path)
-    os.environ['DJANGO_SETTINGS_MODULE'] = '%s.settings' % site_name
-    logger.debug("Using DJANGO_SETTINGS_MODULE = %s" % os.environ['DJANGO_SETTINGS_MODULE'])
-    
+    os.environ['DJANGO_SETTINGS_MODULE'] = '{0}.settings'.format(site_name)
+    logger.debug("Using DJANGO_SETTINGS_MODULE = {0}".format(os.environ['DJANGO_SETTINGS_MODULE']))
+
     new_sys_path = os.path.join(app_path, site_name)
-    logger.debug("Adding %s to sys.path" % new_sys_path)
+    logger.debug("Adding {0} to sys.path".format(new_sys_path))
     sys.path.insert(0, new_sys_path)
 
     import django.core.handlers.wsgi
     return django.core.handlers.wsgi.WSGIHandler()
-     
+
