@@ -106,9 +106,15 @@ class DjangoLoaderTest(unittest.TestCase):
    after DjangoAppLodare loads this app.
   '''
   def test_override_existing_settings_option(self):
+      app_path = os.path.join(FIXTURE, WSGID_APP_NAME, 'app')
+      self.app_loader.load_app(app_path)
+      self.assertEquals('other-value', settings.MY_CUSTOM_SETTING)
+
+  '''
+   We must log any parse error that we may find when reading django.json
+  '''
+  def test_log_error_when_parsing_django_json(self):
       self.fail()
-
-
 
 
 

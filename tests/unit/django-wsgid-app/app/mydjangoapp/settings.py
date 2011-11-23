@@ -9,6 +9,8 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+MY_CUSTOM_SETTING = "Custom"
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
