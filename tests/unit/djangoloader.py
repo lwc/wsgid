@@ -24,7 +24,7 @@ class DjangoLoaderTest(unittest.TestCase):
     self.app_loader = DjangoAppLoader()
 
   def tearDown(self):
-    setattr(settings, '_wrapped', None) #So django thinks we did not configured yet
+    setattr(settings, '_wrapped', None) #So django thinks we are not configured yet
 
   '''
    Ensure we can load a djangoapp even with hidden folders
@@ -95,7 +95,9 @@ class DjangoLoaderTest(unittest.TestCase):
        settings.MY_NON_OVERRIDEN_OPTION
   '''
   def test_custom_options_must_remain(self):
-      self.fail()
+      app_path = os.path.join(FIXTURE, WSGID_APP_NAME, 'app')
+      self.app_loader.load_app(app_path)
+      self.assertEquals('still-the-same-value', settings.MY_OTHER_CUSTOM_SETTING)
 
   '''
    If we have a TEST_OPT inside settings.py and this same
@@ -109,6 +111,13 @@ class DjangoLoaderTest(unittest.TestCase):
       app_path = os.path.join(FIXTURE, WSGID_APP_NAME, 'app')
       self.app_loader.load_app(app_path)
       self.assertEquals('other-value', settings.MY_CUSTOM_SETTING)
+
+  '''
+   If django.json contains a setting that is a dict we must "join" this
+   dict from django.json with the dict loaded from app's settings.py
+  '''
+  def test_join_hash_setting(self):
+      self.fail()
 
   '''
    We must log any parse error that we may find when reading django.json

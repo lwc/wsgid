@@ -10,6 +10,7 @@ ADMINS = (
 MANAGERS = ADMINS
 
 MY_CUSTOM_SETTING = "Custom"
+MY_OTHER_CUSTOM_SETTING = "still-the-same-value"
 
 DATABASES = {
     'default': {
