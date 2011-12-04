@@ -120,7 +120,6 @@ class DjangoLoaderTest(unittest.TestCase):
       app_path = os.path.join(FIXTURE, WSGID_APP_NAME, 'app')
       self.app_loader.load_app(app_path)
       self.assertTrue(isinstance(settings.DATABASES, dict))
-      print settings.DATABASES
       self.assertEquals(2, len(settings.DATABASES))
 
       self.assertEquals("django.db.backends.postgresql", settings.DATABASES['default']['ENGINE'])
