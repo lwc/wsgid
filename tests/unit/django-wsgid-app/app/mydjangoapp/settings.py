@@ -19,6 +19,8 @@ MY_HASH = {
         }
 }
 
+GENERIC_SETTING = True
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.

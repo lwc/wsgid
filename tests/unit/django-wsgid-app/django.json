@@ -16,5 +16,8 @@
       "k2": "new-v2",
       "k3": "new-v3"
     }
+  },
+  "GENERIC_SETTING": {
+      "k": "v"
   }
 }

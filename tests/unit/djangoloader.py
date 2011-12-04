@@ -146,6 +146,29 @@ class DjangoLoaderTest(unittest.TestCase):
       self.assertEquals("new-v2", settings.MY_HASH['subhash']['k2'])
       self.assertEquals("new-v3", settings.MY_HASH['subhash']['k3'])
 
+
+  '''
+   Whataver is on django.json, overrides settings.py, even if
+   settings are of different types
+  '''
+  def test_django_json_overrides_settings(self):
+      app_path = os.path.join(FIXTURE, WSGID_APP_NAME, 'app')
+      self.app_loader.load_app(app_path)
+      self.assertTrue(isinstance(settings.GENERIC_SETTING, dict))
+      self.assertEquals(1, len(settings.GENERIC_SETTING))
+      self.assertEquals("v", settings.GENERIC_SETTING['k'])
+
+
+  def test_list_setting(self):
+      self.fail()
+
+  '''
+    If we have a setting on django.json with the same name of another
+    setting (that is a tuple), the list must be converted to tuple.
+  '''
+  def test_convert_list_to_tuple(self):
+      self.fail()
+
   '''
    We must log any parse error that we may find when reading django.json
   '''
