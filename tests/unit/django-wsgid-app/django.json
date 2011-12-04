@@ -1,3 +1,13 @@
 {
-"MY_CUSTOM_SETTING": "other-value"
+  "MY_CUSTOM_SETTING": "other-value",
+  "DATABASES": {
+    "myotherdb": {
+      "ENGINE": "mysql",
+      "NAME": "mydb",
+      "USER": "user",
+      "PASSWORD": "passwd",
+      "HOST": "localhost",
+      "PORT": "3598"
+    }
+  }
 }

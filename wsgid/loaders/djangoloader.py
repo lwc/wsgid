@@ -58,10 +58,24 @@ class DjangoAppLoader(Plugin):
 
     # Here we force django to load the app settings
     settings._some_value = True
+    # Clean up
     del settings._some_value
+
     for k,v in extra.items():
-        setattr(settings, k, v)
+        pre_exist = getattr(settings, k)
+        if isinstance(v, dict) and pre_exist and isinstance(pre_exist, dict):
+            for k2, v2 in v.items():
+                getattr(settings, k)[k2] = v2
+        else:
+            setattr(settings, k, v)
 
     import django.core.handlers.wsgi
     return django.core.handlers.wsgi.WSGIHandler()
+
+  '''
+   Check if isinstance(args[0], instance_of) returns True for *all*
+   members of *args
+  '''
+  def _is_all_instance(self, instance_of, *args):
+      pass
 

@@ -117,7 +117,25 @@ class DjangoLoaderTest(unittest.TestCase):
    dict from django.json with the dict loaded from app's settings.py
   '''
   def test_join_hash_setting(self):
-      self.fail()
+      app_path = os.path.join(FIXTURE, WSGID_APP_NAME, 'app')
+      self.app_loader.load_app(app_path)
+      self.assertTrue(isinstance(settings.DATABASES, dict))
+      print settings.DATABASES
+      self.assertEquals(2, len(settings.DATABASES))
+
+      self.assertEquals("django.db.backends.postgresql", settings.DATABASES['default']['ENGINE'])
+      self.assertEquals("pgdb", settings.DATABASES['default']['NAME'])
+      self.assertEquals("postgres", settings.DATABASES['default']['USER'])
+      self.assertEquals("pgpasswd", settings.DATABASES['default']['PASSWORD'])
+      self.assertEquals("localhost", settings.DATABASES['default']['HOST'])
+      self.assertEquals("5432", settings.DATABASES['default']['PORT'])
+
+      self.assertEquals("mysql", settings.DATABASES['myotherdb']['ENGINE'])
+      self.assertEquals("mydb", settings.DATABASES['myotherdb']['NAME'])
+      self.assertEquals("user", settings.DATABASES['myotherdb']['USER'])
+      self.assertEquals("passwd", settings.DATABASES['myotherdb']['PASSWORD'])
+      self.assertEquals("localhost", settings.DATABASES['myotherdb']['HOST'])
+      self.assertEquals("3598", settings.DATABASES['myotherdb']['PORT'])
 
   '''
    We must log any parse error that we may find when reading django.json
