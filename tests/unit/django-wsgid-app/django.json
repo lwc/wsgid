@@ -9,5 +9,12 @@
       "HOST": "localhost",
       "PORT": "3598"
     }
+  },
+  "MY_HASH": {
+    "subhash": {
+      "k1": "new-v1",
+      "k2": "new-v2",
+      "k3": "new-v3"
+    }
   }
 }

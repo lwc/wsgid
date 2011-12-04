@@ -136,6 +136,16 @@ class DjangoLoaderTest(unittest.TestCase):
       self.assertEquals("localhost", settings.DATABASES['myotherdb']['HOST'])
       self.assertEquals("3598", settings.DATABASES['myotherdb']['PORT'])
 
+  def test_override_hash_setting(self):
+      app_path = os.path.join(FIXTURE, WSGID_APP_NAME, 'app')
+      self.app_loader.load_app(app_path)
+      self.assertTrue(isinstance(settings.MY_HASH, dict))
+      self.assertEquals(1, len(settings.MY_HASH))
+
+      self.assertEquals("new-v1", settings.MY_HASH['subhash']['k1'])
+      self.assertEquals("new-v2", settings.MY_HASH['subhash']['k2'])
+      self.assertEquals("new-v3", settings.MY_HASH['subhash']['k3'])
+
   '''
    We must log any parse error that we may find when reading django.json
   '''

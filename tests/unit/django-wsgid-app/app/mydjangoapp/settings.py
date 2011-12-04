@@ -12,6 +12,13 @@ MANAGERS = ADMINS
 MY_CUSTOM_SETTING = "Custom"
 MY_OTHER_CUSTOM_SETTING = "still-the-same-value"
 
+MY_HASH = {
+        'subhash': {
+            'k1': 'v1',
+            'k2': 'v2'
+        }
+}
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
