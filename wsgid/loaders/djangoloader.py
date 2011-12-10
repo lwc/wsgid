@@ -38,7 +38,10 @@ class DjangoAppLoader(Plugin):
       conf_file = os.path.join(path, 'django.json')
       log.debug("Reading {0}".format(conf_file))
       if os.path.exists(conf_file):
-        parsed = simplejson.load(open(conf_file))
+          try:
+            parsed = simplejson.load(open(conf_file))
+          except:
+              log.exception("Error parsing {file}".format(file=conf_file))
       return parsed
 
   def load_app(self, app_path, app_full_name = None):

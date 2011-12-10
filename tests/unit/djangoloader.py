@@ -6,7 +6,7 @@ import sys
 
 from wsgid.loaders.djangoloader import DjangoAppLoader
 from wsgid.test import fullpath
-from mock import patch
+from mock import patch, Mock
 from django.conf import settings
 import django
 
@@ -188,17 +188,8 @@ class DjangoLoaderTest(unittest.TestCase):
       setattr(settings, 'TUPLE_SETTING', ('one', 'two'))
       app_path = os.path.join(FIXTURE, WSGID_APP_NAME, 'app')
       self.app_loader.load_app(app_path)
-      print settings.TUPLE_SETTING
       self.assertTrue(isinstance(settings.TUPLE_SETTING, tuple))
       self.assertEquals(('one', 'two', 'three'), settings.TUPLE_SETTING)
-
-  '''
-   We must log any parse error that we may find when reading django.json
-  '''
-  def test_log_error_when_parsing_django_json(self):
-      self.fail()
-
-
 
 
 
