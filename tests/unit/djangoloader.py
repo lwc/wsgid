@@ -178,7 +178,6 @@ class DjangoLoaderTest(unittest.TestCase):
       app_path = os.path.join(FIXTURE, WSGID_APP_NAME, 'app')
       self.app_loader.load_app(app_path)
       self.assertTrue(isinstance(settings.MY_LIST_SETTING, list))
-      #self.assertEquals(3, len(settings.MY_LIST_SETTING))
       self.assertEquals(['some value', 'another one', 'one more'], settings.MY_LIST_SETTING)
 
   '''
@@ -186,7 +185,12 @@ class DjangoLoaderTest(unittest.TestCase):
     setting (that is a tuple), the list must be converted to tuple.
   '''
   def test_convert_list_to_tuple(self):
-      self.fail()
+      setattr(settings, 'TUPLE_SETTING', ('one', 'two'))
+      app_path = os.path.join(FIXTURE, WSGID_APP_NAME, 'app')
+      self.app_loader.load_app(app_path)
+      print settings.TUPLE_SETTING
+      self.assertTrue(isinstance(settings.TUPLE_SETTING, tuple))
+      self.assertEquals(('one', 'two', 'three'), settings.TUPLE_SETTING)
 
   '''
    We must log any parse error that we may find when reading django.json

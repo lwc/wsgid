@@ -21,5 +21,6 @@
       "k": "v"
   },
   "MY_LIST_SETTING": ["one more"],
-  "NEW_SETTING": "a new value"
+  "NEW_SETTING": "a new value",
+  "TUPLE_SETTING": ["three"]
 }

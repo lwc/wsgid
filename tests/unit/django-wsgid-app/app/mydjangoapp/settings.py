@@ -23,6 +23,8 @@ GENERIC_SETTING = True
 
 MY_LIST_SETTING = ['some value', 'another one', 'ok, enough']
 
+TUPLE_SETTING = ('one', 'two')
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.

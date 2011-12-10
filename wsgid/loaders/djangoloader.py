@@ -71,6 +71,9 @@ class DjangoAppLoader(Plugin):
                 getattr(settings, k)[k2] = v2
         elif isinstance(v, list) and setting_value and isinstance(setting_value, list):
             setting_value += v
+        elif isinstance(v, list) and setting_value and isinstance(setting_value, tuple):
+            #Since we cannot modify the original tuple, we must re-create it
+            setattr(settings, k, setting_value + tuple(v))
         else:
             setattr(settings, k, v)
 
@@ -82,5 +85,8 @@ class DjangoAppLoader(Plugin):
    members of *args
   '''
   def _is_all_instance(self, instance_of, *args):
-      pass
+    for a in args:
+      if not isinstance(a, instance_of):
+        return False
+    return True
 
