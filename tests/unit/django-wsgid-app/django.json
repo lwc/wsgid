@@ -19,5 +19,7 @@
   },
   "GENERIC_SETTING": {
       "k": "v"
-  }
+  },
+  "MY_LIST_SETTING": ["one more"],
+  "NEW_SETTING": "a new value"
 }

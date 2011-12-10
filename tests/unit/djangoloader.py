@@ -1,6 +1,5 @@
 
 
-
 import unittest
 import os
 import sys
@@ -23,8 +22,8 @@ class DjangoLoaderTest(unittest.TestCase):
     self.wsgid_appfolder_fullpath = os.path.join(self.abs_app_path, 'app/')
     self.app_loader = DjangoAppLoader()
 
-  def tearDown(self):
-    setattr(settings, '_wrapped', None) #So django thinks we are not configured yet
+#  def tearDown(self):
+#    setattr(settings, '_wrapped', None) #So django thinks we are not configured yet
 
   '''
    Ensure we can load a djangoapp even with hidden folders
@@ -99,6 +98,16 @@ class DjangoLoaderTest(unittest.TestCase):
       self.app_loader.load_app(app_path)
       self.assertEquals('still-the-same-value', settings.MY_OTHER_CUSTOM_SETTING)
 
+
+  '''
+   If we have a setting in django.json that does not exist in settings,
+   we must create it
+  '''
+  def test_create_new_setting(self):
+      app_path = os.path.join(FIXTURE, WSGID_APP_NAME, 'app')
+      self.app_loader.load_app(app_path)
+      self.assertEquals('a new value', settings.NEW_SETTING)
+
   '''
    If we have a TEST_OPT inside settings.py and this same
    options inside wsgidappfolder/django.json, the JSON version
@@ -150,6 +159,7 @@ class DjangoLoaderTest(unittest.TestCase):
   '''
    Whataver is on django.json, overrides settings.py, even if
    settings are of different types
+   This does not apply if original settings is dict or tuple
   '''
   def test_django_json_overrides_settings(self):
       app_path = os.path.join(FIXTURE, WSGID_APP_NAME, 'app')
@@ -159,11 +169,20 @@ class DjangoLoaderTest(unittest.TestCase):
       self.assertEquals("v", settings.GENERIC_SETTING['k'])
 
 
+  '''
+   If we find a list settings we must append the extra values at the
+   end of the found list
+  '''
   def test_list_setting(self):
-      self.fail()
+      setattr(settings, 'MY_LIST_SETTING', ['some value', 'another one'])
+      app_path = os.path.join(FIXTURE, WSGID_APP_NAME, 'app')
+      self.app_loader.load_app(app_path)
+      self.assertTrue(isinstance(settings.MY_LIST_SETTING, list))
+      #self.assertEquals(3, len(settings.MY_LIST_SETTING))
+      self.assertEquals(['some value', 'another one', 'one more'], settings.MY_LIST_SETTING)
 
   '''
-    If we have a setting on django.json with the same name of another
+    If we have a setting on django.json (that is a list) with the same name of another
     setting (that is a tuple), the list must be converted to tuple.
   '''
   def test_convert_list_to_tuple(self):
