@@ -153,11 +153,11 @@ class Cli(object):
       plugnplay.load_plugins()
 
   def _create_daemon_options(self, options):
-    daemon = {'detach_process': not options.nodaemon}
-    daemon.update({ 'stdin': sys.stdin, 
-                   'stdout': sys.stdout, 
+    daemon = {'detach_process': not options.no_daemon}
+    daemon.update({ 'stdin': sys.stdin,
+                   'stdout': sys.stdout,
                    'stderr': sys.stderr})
-    if options.nodaemon:
+    if options.no_daemon:
       # If we are not a daemon we must maintain the basic signal handlers
       daemon.update({'signal_map': {
           signal.SIGTTIN: signal.getsignal(signal.SIGTTIN),
@@ -230,8 +230,8 @@ class Cli(object):
 
     if options.chroot:
       log_path = os.path.join('/', 'logs/wsgid.log')
-    
-    if options.nodaemon and options.stdout:
+
+    if options.no_daemon and options.stdout:
       console = logging.StreamHandler()
     else:
       log_path = os.path.join(options.app_path or '/tmp', 'logs/wsgid.log')

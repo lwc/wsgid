@@ -85,7 +85,7 @@ def _create_core_options():
       dest="stdout", type = BOOL),
 
   add_option('no-daemon', help="Runs wsgid in the foreground, printing all logs to stderr",\
-      type=BOOL, dest="nodaemon"),
+      type=BOOL, dest="no_daemon"),
 
   add_option('workers', help="Starts a fixed number of wsgid processes. Defaults to 1",\
       type=INT, dest="workers", default_value = 1),
@@ -127,7 +127,7 @@ def parse_options(use_config = True):
       options.workers = int(json_cfg.setdefault('workers', options.workers or 1))
       options.keep_alive = _return_bool(json_cfg.setdefault('keep_alive', options.keep_alive))
       options.wsgi_app = _return_str(json_cfg.setdefault('wsgi_app', options.wsgi_app))
-      options.nodaemon = _return_str(json_cfg.setdefault('nodaemon', options.nodaemon))
+      options.no_daemon = _return_str(json_cfg.setdefault('no_daemon', options.no_daemon))
       options.chroot = _return_bool(json_cfg.setdefault('chroot', options.chroot))
       options.stdout = _return_bool(json_cfg.setdefault('stdout', options.stdout))
       options.envs = json_cfg.setdefault('envs', {})

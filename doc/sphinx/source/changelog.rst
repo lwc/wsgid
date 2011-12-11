@@ -7,6 +7,7 @@ Version 0.5.0
  * Implemented the ``status`` command. More at :ref:`commands`;
  * New command line option: ``--stdout`` to redirect all logs to stdout;
  * Feature: Now it's possible to load external django configuration that will be added to your application's settings module. See moreat :ref:`djangoconf`; 
+ * --no-daemon option is now also saved in wsgid.json (using ``wsgid config`` command). If you were using ``nodaemon`` in your wsgid.json files, remember to change all references if ``nodaemon`` to ``no_daemon``.
 
  * Commit log:  https://github.com/daltonmatos/wsgid/compare/v0.4.2...v0.5.0
 
