@@ -27,7 +27,7 @@ class CliTest(unittest.TestCase):
     # so the tested applications does not try to use them
     sys.argv[1:] = []
     self.fake_app_path = os.path.join(fullpath(__file__), 'app-path')
-    
+
     # Ok, not pretty but better than re-implementing this in python
     os.system("rm -rf {0}".format(os.path.join(self.fake_app_path, 'pid/')))
     self.cli.options = parser._parse_args()
@@ -161,7 +161,7 @@ class CliTest(unittest.TestCase):
 
     self.cli._write_pid(42, self.cli.MASTER)
     self.cli._write_pid(43, self.cli.WORKER)
-    
+
     # Check we created all necessary paths
     self.assertTrue(os.path.exists(pid_folder))
     self.assertTrue(os.path.exists(master_pid_folder))
@@ -207,7 +207,7 @@ class CliTest(unittest.TestCase):
    redirected to log file.
   '''
   def test_daemon_should_create_normal_logs(self):
-    opts = FakeOptions(app_path="/some/path", nodaemon=True, stdout=False, debug=None, chroot=None)
+    opts = FakeOptions(app_path="/some/path", no_daemon=True, stdout=False, debug=None, chroot=None)
     with patch('logging.FileHandler'):
       cli = Cli()
       cli._set_loggers(opts)
@@ -218,7 +218,7 @@ class CliTest(unittest.TestCase):
    When we pass --stdout all logs must be pointed to stdout.
   '''
   def test_create_log_for_stdout(self):
-    opts = FakeOptions(app_path="/some/path", nodaemon=True, stdout=True, debug=None, chroot=None)
+    opts = FakeOptions(app_path="/some/path", no_daemon=True, stdout=True, debug=None, chroot=None)
     with patch('logging.StreamHandler'):
       cli = Cli()
       cli._set_loggers(opts)
@@ -244,6 +244,6 @@ class CliTest(unittest.TestCase):
           app = WsgidApp(path)
           self.assertEquals([], app.master_pids())
           self.assertEquals([], app.worker_pids())
- 
+
 
 

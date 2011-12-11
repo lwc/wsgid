@@ -101,7 +101,7 @@ class CommandConfigTest(unittest.TestCase):
 
     # Run the config command
     self.config.run(self.opt)
-    
+
     # Check that the options passed on the command line are the new config options
     h = simplejson.loads(file(os.path.join(self.CLEAN_PATH, "wsgid.json"), "r+").read())
     self.assertEquals("tcp://127.0.0.1:4000", h['recv'])
@@ -122,6 +122,7 @@ class CommandConfigTest(unittest.TestCase):
     self.assertEquals(8, h['workers'])
     self.assertEquals("True", h['keep_alive'])
     self.assertEquals("True", h['chroot'])
+    self.assertEquals("True", h['no_daemon'])
     self.assertEquals("tcp://127.0.0.1:7000", h['recv'])
     self.assertEquals("tcp://127.0.0.1:7001", h['send'])
 
@@ -131,8 +132,8 @@ class CommandConfigTest(unittest.TestCase):
   def test_disable_boolean_option(self):
     opt = FakeOptions(app_path=self.CLEAN_PATH, wsgi_app="app.frontends.wsgi.application",\
                       no_debug=True, debug=True, workers=9, keep_alive=True, chroot=True,\
-                      recv="tcp://127.0.0.1:7000", send="tcp://127.0.0.1:7001", 
-                      no_chroot=False, no_keep_alive=False)
+                      recv="tcp://127.0.0.1:7000", send="tcp://127.0.0.1:7001",
+                      no_chroot=False, no_keep_alive=False, no_daemon = False)
     self.config.run(opt)
     h = simplejson.loads(file(os.path.join(self.CLEAN_PATH, "wsgid.json"), "r+").read())
     self.assertEquals("app.frontends.wsgi.application", h['wsgi_app'])
@@ -143,7 +144,7 @@ class CommandManageTest(unittest.TestCase):
 
   @patch('sys.stderr')
   def setUp(self, *args):
-     self.init = CommandInit() 
+     self.init = CommandInit()
      self.manage = CommandManage()
      self.opt = FakeOptions(app_path=APP_PATH, send_signal=signal.SIGTERM)
      self.init.run(self.opt)
@@ -216,12 +217,12 @@ class CommandManageTest(unittest.TestCase):
     with patch('os.kill'):
       self.manage.run(opts, command_name = 'restart')
       self.assertEquals(0, os.kill.call_count)
-    
+
 class CommandStatusTest(unittest.TestCase):
 
   @patch('sys.stderr')
   def setUp(self, *args):
-     self.init = CommandInit() 
+     self.init = CommandInit()
      self.manage = CommandManage()
      self.new_path = os.path.join(FIXTURES_PATH, 'status-command')
      self.opt = FakeOptions(app_path=self.new_path, send_signal=signal.SIGTERM)
@@ -242,8 +243,8 @@ class CommandStatusTest(unittest.TestCase):
         open(os.path.join(self.new_path, "pid/worker/4857.pid"), "w")
         CommandStatus().run(self.opt)
         self.assertEquals(3, sys.stdout.write.call_count)
-        self.assertEquals([(("Status: Running\n",), {}), 
-                           (("Master pid(s): 3847\n",), {}), 
+        self.assertEquals([(("Status: Running\n",), {}),
+                           (("Master pid(s): 3847\n",), {}),
                            (("Worker pid(s): 4857\n",), {})], sys.stdout.write.call_args_list)
 
   def test_list_worker_pids(self):
@@ -258,7 +259,7 @@ class CommandStatusTest(unittest.TestCase):
        open(os.path.join(path, "pid/worker/4857.pid"), "w")
        CommandStatus().run(FakeOptions(app_path=path))
        self.assertEquals(3, sys.stdout.write.call_count)
-       self.assertEquals([(("Status: Running\n",), {}), 
+       self.assertEquals([(("Status: Running\n",), {}),
                           (("Master pid(s): \n",), {}),
                           (("Worker pid(s): 3847, 3948, 4857\n",), {})], sys.stdout.write.call_args_list)
 
@@ -271,7 +272,7 @@ class CommandStatusTest(unittest.TestCase):
      open(os.path.join(path, "pid/master/3847.pid"), "w")
      CommandStatus().run(FakeOptions(app_path=path))
      self.assertEquals(3, sys.stdout.write.call_count)
-     self.assertEquals([(("Status: Stopped\n",), {}), 
+     self.assertEquals([(("Status: Stopped\n",), {}),
                         (("Master pid(s): 3847\n",), {}),
                         (("Worker pid(s): \n",), {})], sys.stdout.write.call_args_list)
 
@@ -288,7 +289,7 @@ class CommandStatusTest(unittest.TestCase):
        open(os.path.join(path, "pid/worker/2845.pid"), "w")
        CommandStatus().run(FakeOptions(app_path=path))
        self.assertEquals(3, sys.stdout.write.call_count)
-       self.assertEquals([(("Status: Stopped\n",), {}), 
+       self.assertEquals([(("Status: Stopped\n",), {}),
                           (("Master pid(s): 3847\n",), {}),
                           (("Worker pid(s): 2845(dead)\n",), {})], sys.stdout.write.call_args_list)
 

@@ -29,12 +29,13 @@ class CommandConfig(Plugin):
       self._override_if_not_none('workers', cfg_values, options.workers, convert_func=int)
     self._override_if_not_none('keep_alive', cfg_values, options.keep_alive)
     self._override_if_not_none('chroot', cfg_values, options.chroot)
+    self._override_if_not_none('no_daemon', cfg_values, options.no_daemon)
     self._override_if_not_none('recv', cfg_values, options.recv)
     self._override_if_not_none('send', cfg_values, options.send)
-    
+
     # Custom config command options
     cfg_values['debug'] = str((not options.no_debug))
-    
+
     # Rewrite the config file
     f.seek(0)
     f.truncate()
