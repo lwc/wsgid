@@ -6,6 +6,9 @@ Version 0.5.0
 
  * Implemented the ``status`` command. More at :ref:`commands`;
  * New command line option: ``--stdout`` to redirect all logs to stdout;
+ * Feature: Now it's possible to load external django configuration that will be added to your application's settings module. See moreat :ref:`djangoconf`; 
+
+ * Commit log:  https://github.com/daltonmatos/wsgid/compare/v0.4.2...v0.5.0
 
 Version 0.4.2
 *************
@@ -14,7 +17,7 @@ Version 0.4.2
  
  * Commit log:  https://github.com/daltonmatos/wsgid/compare/v0.4.1...v0.4.2
 
- Version 0.4.1
+Version 0.4.1
 *************
 
  * Hotfix for bug #6, that was actually not solved.
