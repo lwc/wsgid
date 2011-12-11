@@ -5,8 +5,11 @@ Tutorials
 Here are some example tutorials about running WSGID with different frameworks.
 
 
+.. _django:
+
 Loading a Django Application
 ****************************
+
 
 Suppose you have a django project (http://djangoproject.com) named *myproject*. So probably you have an folder named *myproject*, with your *settings.py*, *manage.py*, and other files.
 To load this app with wsgid you need to copy your application code to the *app* folder. Make sure you copy **your django project folder**, not only its contents. Suppose your wsgid app will be at */var/wsgid/djangoapp*, so you must have inside this folder the correct structure for a wsgid app (see :doc:`appstructure`). 
@@ -24,6 +27,40 @@ Now just call wsgid as always: ::
 .. versionadded:: 0.4.0
 
 Now you can have as many djangoproject as you like inside wsgid/app folder. Wsgid will load the first project it finds, ordered alphabetically.
+
+.. _djangoconf:
+
+Using an external config file to load additional django settings
+----------------------------------------------------------------
+
+
+.. versionadded:: 0.5.0
+
+
+Optionally you can use an external file to load additional django settings to your application. The configuration file must be named ``django.json`` and resides inside your wsgidapp folder. It is a JSON file with any kind of setting you may need. All these will be added to your settings module and thus will be available to your django application, at runtime.
+
+This is very useful, to deploy you app on production. Using this functionality you don't need leave any specific config value on your settings.py. As an example, think about your dabatase credentials. To do this you can have a ``django.json`` that looks like this: ::
+
+     {
+       "DATABASES": {
+         "default": {
+            "ENGINE": "mysql",
+            "NAME": "mydb",
+            "USER": "user",
+            "PASSWORD": "passwd",
+            "HOST": "localhost",
+            "PORT": "3598"
+         }
+       }
+     }
+
+This setting will be joined with the ``DATABASES`` dict already present in your ``settings.py``. The key ``default`` will override any other ``default`` key that may exist in your ``settings.py``. You can define any additional dabatase if you want.
+
+Some rules apply to how DjangoAppLoader will use these additional settings:
+
+ * If a setting found is in django.json but is not found in settings module, it will be created;
+ * If a setting exists in both locations and are of different types, the one from django.json will override the other;
+ * Settings of type dict, list and tuple will be joined together, that is, all values from django.json will be appended to the original setting.
 
 Loading a pyroutes Application
 ******************************

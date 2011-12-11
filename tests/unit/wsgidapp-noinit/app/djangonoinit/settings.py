@@ -1,4 +1,4 @@
-# Django settings for mydjangoapp project.
+# Django settings for djangonoinit project.
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -9,30 +9,14 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-MY_CUSTOM_SETTING = "Custom"
-MY_OTHER_CUSTOM_SETTING = "still-the-same-value"
-
-MY_HASH = {
-        'subhash': {
-            'k1': 'v1',
-            'k2': 'v2'
-        }
-}
-
-GENERIC_SETTING = True
-
-MY_LIST_SETTING = ['some value', 'another one', 'ok, enough']
-
-TUPLE_SETTING = ('one', 'two')
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'pgdb',                      # Or path to database file if using sqlite3.
-        'USER': 'postgres',                      # Not used with sqlite3.
-        'PASSWORD': 'pgpasswd',                  # Not used with sqlite3.
-        'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '5432',                      # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': '',                      # Or path to database file if using sqlite3.
+        'USER': '',                      # Not used with sqlite3.
+        'PASSWORD': '',                  # Not used with sqlite3.
+        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }
 
@@ -99,7 +83,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'd6a=ki$a!@vg3%7k6_x$!0er&h^d%%v5*_x1s%ck0#7i1(p4^7'
+SECRET_KEY = '7g@6jli10&ufjgz(cd8y-6jr3fm1u12ls0yl^ao=k!k9bewu35'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -116,7 +100,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
-ROOT_URLCONF = 'mydjangoapp.urls'
+ROOT_URLCONF = 'djangonoinit.urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
