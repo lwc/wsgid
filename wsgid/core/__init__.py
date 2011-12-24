@@ -72,3 +72,5 @@ def run_command():
         return True
   return False
 
+
+from wsgid import Wsgid
