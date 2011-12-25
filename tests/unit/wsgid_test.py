@@ -254,6 +254,11 @@ class WsgidTest(unittest.TestCase):
       # WSGI environ
       self.fail()
 
+  def test_remove_async_file_after_request_finishes(self):
+      # Since mongrel2 does not remove the originial temp file, wsgid
+      # must remove it after the request was successfully (or not) handled.
+      self.fail()
+
 class WsgidReplyTest(unittest.TestCase):
 
 
