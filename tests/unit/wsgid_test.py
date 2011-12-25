@@ -77,7 +77,7 @@ class WsgidTest(unittest.TestCase):
     self.assertTrue(environ.has_key('REQUEST_METHOD'))
     self.assertEquals('GET', environ['REQUEST_METHOD'])
 
-  
+
   def test_environ_query_string(self):
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
     self.assertEquals("a=1&b=4&d=4", environ['QUERY_STRING'])

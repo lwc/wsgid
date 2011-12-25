@@ -2,6 +2,9 @@
 
 import json
 
+HEADER_UPLOAD_START = 'x-mongrel2-upload-start'
+HEADER_UPLOAD_DONE = 'x-mongrel2-upload-done'
+
 class Message(object):
   '''
     Represents a mongrel2 raw message
@@ -18,7 +21,7 @@ class Message(object):
     self.server_id, self.client_id,\
         self.path, self.netstring = m2message.split(' ', 3)
     len_headers, rest = self.netstring.split(':', 1)
-    
+
     self.headers = json.loads(rest[:int(len_headers)])
     rest_with_body = rest[int(len_headers)+1:]
     len_body , rest = rest_with_body.split(':', 1)
@@ -27,3 +30,11 @@ class Message(object):
 
   def is_disconnect(self):
     return self.path == '@*' and self.headers['METHOD'] == 'JSON'
+
+  def is_upload_start(self):
+      return 'x-mongrel2-upload-start' in self.headers
+
+  def is_upload_done(self):
+      start = self.headers.get(HEADER_UPLOAD_START, 'start')
+      finish = self.headers.get(HEADER_UPLOAD_DONE, 'done')
+      return start == finish
