@@ -91,22 +91,6 @@ class WsgidServeTest(unittest.TestCase):
     finally:
       self._kill_wsgid(pid)
 
-  def test_async_upload(self):
-      data = '.'.join(['.' for a in range(21 * 1024)])
-      total = len(data)
-      def app(environ, start_response):
-        start_response('200 OK', [])
-        if environ['REQUEST_METHOD'] == 'POST':
-          return [len(environ['wsgi.input'].read())]
-
-      pid = self._run_wsgid(app)
-      try:
-        r = urllib2.urlopen('http://127.0.0.1:8888/py/post', data=data)
-        self.assertEquals(str(total), str(r.read()))
-      finally:
-        self._kill_wsgid(pid)
-
-
   def _run_wsgid(self, app):
     def _serve(app):
       w = Wsgid(app,

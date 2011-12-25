@@ -8,12 +8,12 @@ from StringIO import StringIO
 import sys
 
 class Wsgid(object):
-  
+
   def __init__(self, app = None, recv = None, send = None):
     self.app = app
     self.recv = recv
     self.send = send
-    
+
     self.ctx = zmq.Context()
     self.log = get_main_logger()
 
@@ -37,12 +37,21 @@ class Wsgid(object):
         self.log.debug("Disconnect message received, id=%s" % m2message.client_id)
         continue
 
+      if m2message.is_upload_start():
+        self.log.debug("Starting async upload, file will be at: {0}".format(m2message.async_upload_path))
+        continue
+
 
       # Call the app and send the response back to mongrel2
       self._call_wsgi_app(m2message, send_sock)
-      
+
   def _call_wsgi_app(self, m2message, send_sock):
     environ = self._create_wsgi_environ(m2message.headers, m2message.body)
+
+    if m2message.is_upload_done():
+        self.log.debug("Async upload done, reading from {0}".format(m2message.async_upload_path))
+        environ['wsgi.input'] = open(m2message.async_upload_path)
+
     start_response = StartResponse()
 
     server_id = m2message.server_id
@@ -101,7 +110,7 @@ class Wsgid(object):
     environ = {}
     #Not needed
     json_headers.pop('URI', None)
-    
+
     #First, some fixed values
     environ['wsgi.multithread'] = False
     environ['wsgi.multiprocess'] = True
@@ -109,6 +118,7 @@ class Wsgid(object):
     environ['wsgi.errors'] = sys.stderr
     environ['wsgi.version'] = (1,0)
     self._set(environ, 'wsgi.url_scheme', "http")
+
 
     if body:
       environ['wsgi.input'] = StringIO(body)
@@ -137,10 +147,10 @@ class Wsgid(object):
     self._set(environ, 'SERVER_NAME', server_name)
 
     self._set(environ, 'REMOTE_ADDR', json_headers['x-forwarded-for'])
-    
+
     self._set(environ, 'CONTENT_TYPE', json_headers.pop('content-type', ''))
     environ['content-type'] = environ['CONTENT_TYPE']
-    
+
     self._set(environ, 'CONTENT_LENGTH', json_headers.pop('content-length', ''))
     environ['content-length'] = environ['CONTENT_LENGTH']
 
@@ -160,4 +170,5 @@ class Wsgid(object):
   '''
   def _set(self, environ, key, value):
     environ[key] = str(value)
+
 

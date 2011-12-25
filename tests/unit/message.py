@@ -86,9 +86,15 @@ class PaserTest(unittest.TestCase):
       parsed = Message(self._build_m2message("body", {'x-mongrel2-upload-start': '/tmp/m2upload.38dG47'}))
       self.assertTrue(parsed.is_upload_start())
 
+  def test_get_start_async_upload_path(self):
+      parsed = Message(self._build_m2message("body", {'x-mongrel2-upload-start': '/tmp/m2upload.38dG47'}))
+      self.assertEquals('/tmp/m2upload.38dG47', parsed.async_upload_path)
+
+
   def test_is_finish_async_upload(self):
       parsed = Message(self._build_m2message("body", {'x-mongrel2-upload-start': '/tmp/m2upload.38dG47' ,'x-mongrel2-upload-done': '/tmp/m2upload.38dG47'}))
       self.assertTrue(parsed.is_upload_done())
+      self.assertFalse(parsed.is_upload_start())
 
   def test_is_finish_async_upload_check_values(self):
       parsed = Message(self._build_m2message("body", {'x-mongrel2-upload-start': '/tmp/m2uplo' ,'x-mongrel2-upload-done': '/tmp/m2upload.38dG47'}))

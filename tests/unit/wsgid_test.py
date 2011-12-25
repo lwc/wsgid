@@ -7,6 +7,8 @@ import zmq
 from wsgid.core.wsgid import Wsgid
 import sys
 
+from mock import patch, Mock
+
 class WsgidTest(unittest.TestCase):
 
   def setUp(self):
@@ -239,6 +241,18 @@ class WsgidTest(unittest.TestCase):
     self.assertEquals("http", environ['wsgi.url_scheme'])
     self.assertEquals(sys.stderr, environ['wsgi.errors'])
 
+  def test_join_m2_chroot_to_async_upload_path(self):
+      # The value in x-mongrel2-upload-{start,done} should be prepended with the
+      # value of --m2-chroot, passed on the command line
+
+      # Check that the path of the open() call is the same of the real file.
+
+      # Check this looking at the WSGI environ, ['wsgi.input'].
+
+      # patch _call_wsgi_app and check that the environ passed has the right
+      # ['wsgi.input'] value. Refactor _call_wsgi_app to receive the created
+      # WSGI environ
+      self.fail()
 
 class WsgidReplyTest(unittest.TestCase):
 

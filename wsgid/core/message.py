@@ -32,9 +32,13 @@ class Message(object):
     return self.path == '@*' and self.headers['METHOD'] == 'JSON'
 
   def is_upload_start(self):
-      return 'x-mongrel2-upload-start' in self.headers
+      return 'x-mongrel2-upload-start' in self.headers and not self.is_upload_done()
 
   def is_upload_done(self):
       start = self.headers.get(HEADER_UPLOAD_START, 'start')
       finish = self.headers.get(HEADER_UPLOAD_DONE, 'done')
       return start == finish
+
+  @property
+  def async_upload_path(self):
+      return self.headers.get(HEADER_UPLOAD_START, None)
