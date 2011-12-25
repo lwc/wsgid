@@ -93,3 +93,21 @@ So you tried hard but wsgid was not able to load your app? OK, not everything is
   wsgid --wsgi-app=myproject.frontends.wsgi.entry_point --send=SEND_SOCK --recv=RECV_SOCK --app-path=/path/to/the/wsgid-app
 
 This means that the module *wsgi*, inside the module *frontends* of your project declares an object named *entry_point*. The *entry_point* object is just a callable that receives two parameters, just like PEP-333 says.
+
+.. _asyncupload-tut:
+
+Handling big requests using mongrel2's async upload mechanism
+*************************************************************
+
+.. versionadded:: 0.5.0
+
+Mongrel2 has a very intereting way to handle big requests. Instead of trying to buffer all content in memory it creates a temporary file and dumps the request into it. This makes it possible to handle requests while keeping a very low memory usage. Wsgid makes all this transparent to your WSGI application.
+
+But since mongrel2 creates all temporary files with a path relative to its chroot if you want to take advantage of this mechanism you must pass to wsgid the path where your mongrel2 server is chrooted. Each mongrel2 server instance can have its own chroot so you must know beforehand to which server your wsgid will be attached and responding requests.
+
+Suppose we have a server chrooted at ``/var/mongrel2``. All wsgid instances that are attached to any handlers of this server must be called with ``--mongrel2-chroot=/var/mongrel2``. Note that you only need to pass different chroot values if you have more than one server and they are at different places. Normaly you will use the same chroot for all your servers.
+
+You can also use this option from the ``wsgid.json`` configuration file. The name of the option is: ``mongrel2_chroot``.
+
+
+
