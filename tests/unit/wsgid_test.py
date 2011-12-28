@@ -5,9 +5,10 @@ import unittest
 
 import zmq
 from wsgid.core.wsgid import Wsgid
+from wsgid.core.message import Message
 import sys
 
-from mock import patch, Mock
+from mock import patch, Mock, MagicMock
 
 class WsgidTest(unittest.TestCase):
 
@@ -246,13 +247,35 @@ class WsgidTest(unittest.TestCase):
       # value of --m2-chroot, passed on the command line
 
       # Check that the path of the open() call is the same of the real file.
+      # (f.name returns the full original path)
 
       # Check this looking at the WSGI environ, ['wsgi.input'].
 
       # patch _call_wsgi_app and check that the environ passed has the right
       # ['wsgi.input'] value. Refactor _call_wsgi_app to receive the created
       # WSGI environ
-      self.fail()
+      with patch('zmq.Context'):
+          def _serve_request(wsgid, m2message, expected_final_path):
+            with patch.object(wsgid, '_create_wsgi_environ'):
+                wsgid._create_wsgi_environ.return_value = {}
+                with patch("__builtin__.open") as mock_open:
+                    wsgid._call_wsgi_app(message, Mock())
+                    self.assertEquals(1, mock_open.call_count)
+                    mock_open.assert_called_with(expected_final_path)
+
+          sys.argv[1:] = ['--mongrel2-chroot=/var/mongrel2']
+          wsgid = Wsgid(app = Mock(return_value=['body response']))
+
+          message = Mock()
+          message.headers = {'x-mongrel2-upload-start': '/uploads/m2.84Yet4',
+                             'x-mongrel2-upload-done': '/uploads/m2.84Yet4'}
+          message.async_upload_path = '/uploads/m2.84Yet4'
+          message.server_id = 'uuid'
+          message.client_id = '42'
+          _serve_request(wsgid, message, '/var/mongrel2/uploads/m2.84Yet4')
+          sys.argv[1:] = [] #Simulate --mongrel2-chroo not passed, assume "/"
+          _serve_request(wsgid, message, '/uploads/m2.84Yet4')
+
 
   def test_remove_async_file_after_request_finishes_ok(self):
       # Since mongrel2 does not remove the originial temp file, wsgid

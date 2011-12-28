@@ -6,6 +6,8 @@ from . import StartResponse, get_main_logger
 import zmq
 from StringIO import StringIO
 import sys
+import os
+from parser import parse_options
 
 class Wsgid(object):
 
@@ -50,7 +52,9 @@ class Wsgid(object):
 
     if m2message.is_upload_done():
         self.log.debug("Async upload done, reading from {0}".format(m2message.async_upload_path))
-        environ['wsgi.input'] = open(m2message.async_upload_path)
+        parts = m2message.async_upload_path.split('/')
+        chroot = parse_options().mongrel2_chroot
+        environ['wsgi.input'] = open(os.path.join(chroot, *parts))
 
     start_response = StartResponse()
 
