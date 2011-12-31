@@ -135,7 +135,7 @@ def parse_options(use_config = True):
       options.no_daemon = _return_str(json_cfg.setdefault('no_daemon', options.no_daemon))
       options.chroot = _return_bool(json_cfg.setdefault('chroot', options.chroot))
       options.stdout = _return_bool(json_cfg.setdefault('stdout', options.stdout))
-      options.mongrel2_chroot = _return_bool(json_cfg.setdefault('mongrel2_chroot', options.mongrel2_chroot))
+      options.mongrel2_chroot = _return_str(json_cfg.setdefault('mongrel2_chroot', options.mongrel2_chroot))
       options.envs = json_cfg.setdefault('envs', {})
 
   return options

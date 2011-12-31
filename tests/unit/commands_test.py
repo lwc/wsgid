@@ -116,7 +116,7 @@ class CommandConfigTest(unittest.TestCase):
     opt = FakeOptions(app_path=self.CLEAN_PATH, wsgi_app="app.frontends.wsgi.application",\
                       debug=True, no_daemon=True, workers=8, keep_alive=True, chroot=True,\
                       recv="tcp://127.0.0.1:7000", send="tcp://127.0.0.1:7001",\
-                      no_debug=False, no_chroot=False, no_keep_alive=False, mongrel2_chroot='/var/www')
+                      no_debug=False, no_chroot=False, no_keep_alive=False, mongrel2_chroot = '/var/www')
     self.config.run(opt)
     h = simplejson.loads(file(os.path.join(self.CLEAN_PATH, "wsgid.json"), "r+").read())
     self.assertEquals("app.frontends.wsgi.application", h['wsgi_app'])
