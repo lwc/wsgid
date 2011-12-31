@@ -82,7 +82,8 @@ class Wsgid(object):
     finally:
       if hasattr(response, 'close'):
         response.close()
-      self._remove_tmp_file(upload_path)
+      if m2message.is_upload_done():
+        self._remove_tmp_file(upload_path)
 
   def _remove_tmp_file(self, filepath):
       try:

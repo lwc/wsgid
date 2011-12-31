@@ -316,6 +316,26 @@ class WsgidTest(unittest.TestCase):
             _serve_request(wsgid, message)
             self.assertEquals(1, wsgid.log.exception.call_count)
 
+  def test_do_not_try_to_remove_if_not_upload_request(self):
+         with patch('zmq.Context'):
+          with patch('os.unlink') as mock_unlink:
+            def _serve_request(wsgid, m2message):
+                with patch.object(wsgid, '_create_wsgi_environ'):
+                    wsgid._create_wsgi_environ.return_value = {}
+                    with patch("__builtin__.open") as mock_open:
+                        wsgid._call_wsgi_app(message, Mock())
+
+            wsgid = Wsgid(app = Mock(return_value = ['body response']))
+            wsgid.log = Mock()
+            sys.argv[1:] = []
+            message = Mock()
+            message.headers = [] #It's not an upload message
+            message.client_id = 'uuid'
+            message.server_id = '1'
+            message.is_upload_done.return_value = False
+            _serve_request(wsgid, message)
+            self.assertEquals(0, mock_unlink.call_count)
+
   def _create_fake_m2message(self, async_upload_path):
         message = Mock()
         message.headers = {'x-mongrel2-upload-start': async_upload_path,
