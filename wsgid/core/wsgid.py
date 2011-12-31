@@ -49,12 +49,13 @@ class Wsgid(object):
 
   def _call_wsgi_app(self, m2message, send_sock):
     environ = self._create_wsgi_environ(m2message.headers, m2message.body)
+    upload_path = parse_options().mongrel2_chroot
 
     if m2message.is_upload_done():
         self.log.debug("Async upload done, reading from {0}".format(m2message.async_upload_path))
         parts = m2message.async_upload_path.split('/')
-        chroot = parse_options().mongrel2_chroot
-        environ['wsgi.input'] = open(os.path.join(chroot, *parts))
+        upload_path = os.path.join(upload_path, *parts)
+        environ['wsgi.input'] = open(upload_path)
 
     start_response = StartResponse()
 
@@ -74,6 +75,7 @@ class Wsgid(object):
       status = start_response.status
       headers = start_response.headers
       send_sock.send(str(self._reply(server_id, client_id, status, headers, body)))
+      os.unlink(upload_path)
     except Exception, e:
       # Internal Server Error
       send_sock.send(self._reply(server_id, client_id, '500 Internal Server Error', headers=[]))

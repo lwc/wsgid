@@ -245,15 +245,6 @@ class WsgidTest(unittest.TestCase):
   def test_join_m2_chroot_to_async_upload_path(self):
       # The value in x-mongrel2-upload-{start,done} should be prepended with the
       # value of --m2-chroot, passed on the command line
-
-      # Check that the path of the open() call is the same of the real file.
-      # (f.name returns the full original path)
-
-      # Check this looking at the WSGI environ, ['wsgi.input'].
-
-      # patch _call_wsgi_app and check that the environ passed has the right
-      # ['wsgi.input'] value. Refactor _call_wsgi_app to receive the created
-      # WSGI environ
       with patch('zmq.Context'):
           def _serve_request(wsgid, m2message, expected_final_path):
             with patch.object(wsgid, '_create_wsgi_environ'):
@@ -266,12 +257,7 @@ class WsgidTest(unittest.TestCase):
           sys.argv[1:] = ['--mongrel2-chroot=/var/mongrel2']
           wsgid = Wsgid(app = Mock(return_value=['body response']))
 
-          message = Mock()
-          message.headers = {'x-mongrel2-upload-start': '/uploads/m2.84Yet4',
-                             'x-mongrel2-upload-done': '/uploads/m2.84Yet4'}
-          message.async_upload_path = '/uploads/m2.84Yet4'
-          message.server_id = 'uuid'
-          message.client_id = '42'
+          message = self._create_fake_m2message('/uploads/m2.84Yet4')
           _serve_request(wsgid, message, '/var/mongrel2/uploads/m2.84Yet4')
           sys.argv[1:] = [] #Simulate --mongrel2-chroo not passed, assume "/"
           _serve_request(wsgid, message, '/uploads/m2.84Yet4')
@@ -280,11 +266,40 @@ class WsgidTest(unittest.TestCase):
   def test_remove_async_file_after_request_finishes_ok(self):
       # Since mongrel2 does not remove the originial temp file, wsgid
       # must remove it after the request was successfully (or not) handled.
-      self.fail()
+      with patch('zmq.Context'):
+          with patch('os.unlink') as mock_unlink:
+            def _serve_request(wsgid, m2message):
+                with patch.object(wsgid, '_create_wsgi_environ'):
+                    wsgid._create_wsgi_environ.return_value = {}
+                    with patch("__builtin__.open") as mock_open:
+                        wsgid._call_wsgi_app(message, Mock())
+
+            wsgid = Wsgid(app = Mock(return_value=['body response']))
+
+            message = self._create_fake_m2message('/uploads/m2.84Yet4')
+            _serve_request(wsgid, message)
+            mock_unlink.assert_called_with('/uploads/m2.84Yet4')
+            wsgid.app = Mock(side_effect = Exception("Falied"))
+
 
   def test_remove_async_file_after_failed_request(self):
       # Even if the request failed, wsgid must remove the temporary file.
       self.fail()
+
+  def test_protect_against_exception_on_file_removal(self):
+      self.fail()
+
+
+  def _create_fake_m2message(self, async_upload_path):
+        message = Mock()
+        message.headers = {'x-mongrel2-upload-start': async_upload_path,
+                            'x-mongrel2-upload-done': async_upload_path}
+        message.async_upload_path = async_upload_path
+        message.server_id = 'uuid'
+        message.client_id = '42'
+        return message
+
+
 
 class WsgidReplyTest(unittest.TestCase):
 
