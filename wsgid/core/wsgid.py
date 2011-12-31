@@ -75,7 +75,6 @@ class Wsgid(object):
       status = start_response.status
       headers = start_response.headers
       send_sock.send(str(self._reply(server_id, client_id, status, headers, body)))
-      os.unlink(upload_path)
     except Exception, e:
       # Internal Server Error
       send_sock.send(self._reply(server_id, client_id, '500 Internal Server Error', headers=[]))
@@ -83,6 +82,14 @@ class Wsgid(object):
     finally:
       if hasattr(response, 'close'):
         response.close()
+      self._remove_tmp_file(upload_path)
+
+  def _remove_tmp_file(self, filepath):
+      try:
+        os.unlink(filepath)
+      except OSError, o:
+        self.log.exception(o)
+
 
   '''
    Constructs a mongrel2 response message based on the

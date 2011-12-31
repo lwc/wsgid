@@ -250,9 +250,10 @@ class WsgidTest(unittest.TestCase):
             with patch.object(wsgid, '_create_wsgi_environ'):
                 wsgid._create_wsgi_environ.return_value = {}
                 with patch("__builtin__.open") as mock_open:
-                    wsgid._call_wsgi_app(message, Mock())
-                    self.assertEquals(1, mock_open.call_count)
-                    mock_open.assert_called_with(expected_final_path)
+                    with patch('os.unlink'):
+                        wsgid._call_wsgi_app(message, Mock())
+                        self.assertEquals(1, mock_open.call_count)
+                        mock_open.assert_called_with(expected_final_path)
 
           sys.argv[1:] = ['--mongrel2-chroot=/var/mongrel2']
           wsgid = Wsgid(app = Mock(return_value=['body response']))
@@ -279,16 +280,41 @@ class WsgidTest(unittest.TestCase):
             message = self._create_fake_m2message('/uploads/m2.84Yet4')
             _serve_request(wsgid, message)
             mock_unlink.assert_called_with('/uploads/m2.84Yet4')
-            wsgid.app = Mock(side_effect = Exception("Falied"))
 
 
   def test_remove_async_file_after_failed_request(self):
       # Even if the request failed, wsgid must remove the temporary file.
-      self.fail()
+       with patch('zmq.Context'):
+          with patch('os.unlink') as mock_unlink:
+            def _serve_request(wsgid, m2message):
+                with patch.object(wsgid, '_create_wsgi_environ'):
+                    wsgid._create_wsgi_environ.return_value = {}
+                    with patch("__builtin__.open") as mock_open:
+                        wsgid._call_wsgi_app(message, Mock())
+
+            wsgid = Wsgid(app = Mock(side_effect = Exception("Failed")))
+            wsgid.log = Mock()
+            sys.argv[1:] = []
+            message = self._create_fake_m2message('/uploads/m2.84Yet4')
+            _serve_request(wsgid, message)
+            mock_unlink.assert_called_with('/uploads/m2.84Yet4')
 
   def test_protect_against_exception_on_file_removal(self):
-      self.fail()
+        with patch('zmq.Context'):
+          with patch('os.unlink') as mock_unlink:
+            mock_unlink.side_effect = OSError("File does not exist")
+            def _serve_request(wsgid, m2message):
+                with patch.object(wsgid, '_create_wsgi_environ'):
+                    wsgid._create_wsgi_environ.return_value = {}
+                    with patch("__builtin__.open") as mock_open:
+                        wsgid._call_wsgi_app(message, Mock())
 
+            wsgid = Wsgid(app = Mock(return_value = ['body response']))
+            wsgid.log = Mock()
+            sys.argv[1:] = []
+            message = self._create_fake_m2message('/uploads/m2.84Yet4')
+            _serve_request(wsgid, message)
+            self.assertEquals(1, wsgid.log.exception.call_count)
 
   def _create_fake_m2message(self, async_upload_path):
         message = Mock()
@@ -298,8 +324,6 @@ class WsgidTest(unittest.TestCase):
         message.server_id = 'uuid'
         message.client_id = '42'
         return message
-
-
 
 class WsgidReplyTest(unittest.TestCase):
 
