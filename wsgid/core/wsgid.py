@@ -7,7 +7,7 @@ import zmq
 from StringIO import StringIO
 import sys
 import os
-from parser import parse_options
+from .. import conf
 
 class Wsgid(object):
 
@@ -49,7 +49,7 @@ class Wsgid(object):
 
   def _call_wsgi_app(self, m2message, send_sock):
     environ = self._create_wsgi_environ(m2message.headers, m2message.body)
-    upload_path = parse_options().mongrel2_chroot
+    upload_path = conf.settings.mongrel2_chroot
 
     if m2message.is_upload_done():
         self.log.debug("Async upload done, reading from {0}".format(m2message.async_upload_path))

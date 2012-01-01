@@ -2,6 +2,8 @@
 
 from .. import __version__, __progname__, __description__
 
+from .. import conf
+
 import os
 import argparse
 
@@ -110,6 +112,9 @@ def _create_core_options():
       dest="mongrel2_chroot", default_value='/')]
 
 def parse_options(use_config = True):
+
+  if conf.settings: #Do not parse twice
+      return conf.settings
   options = _parse_args()
   options.app_path = _full_path(options.app_path)
   options.envs = {}
@@ -138,6 +143,8 @@ def parse_options(use_config = True):
       options.mongrel2_chroot = _return_str(json_cfg.setdefault('mongrel2_chroot', options.mongrel2_chroot))
       options.envs = json_cfg.setdefault('envs', {})
 
+
+  conf.settings = options
   return options
 
 def _return_bool(option):

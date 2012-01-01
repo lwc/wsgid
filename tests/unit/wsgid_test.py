@@ -6,6 +6,8 @@ import unittest
 import zmq
 from wsgid.core.wsgid import Wsgid
 from wsgid.core.message import Message
+from wsgid.core.parser import parse_options
+import wsgid.conf as conf
 import sys
 
 from mock import patch, Mock, MagicMock
@@ -26,8 +28,12 @@ class WsgidTest(unittest.TestCase):
           'content-type': 'text/plain',
           'x-forwarded-for': '127.0.0.1'
         }
+    sys.argv[1:] = []
+    parse_options()
+
   def tearDown(self):
     self.sample_headers = {}
+    conf.settings = None
 
   '''
    Creates the SCRIPT_NAME header from the mongrel2 PATTERN header.
@@ -255,12 +261,12 @@ class WsgidTest(unittest.TestCase):
                         self.assertEquals(1, mock_open.call_count)
                         mock_open.assert_called_with(expected_final_path)
 
-          sys.argv[1:] = ['--mongrel2-chroot=/var/mongrel2']
+          self._reparse_options('--mongrel2-chroot=/var/mongrel2')
           wsgid = Wsgid(app = Mock(return_value=['body response']))
 
           message = self._create_fake_m2message('/uploads/m2.84Yet4')
           _serve_request(wsgid, message, '/var/mongrel2/uploads/m2.84Yet4')
-          sys.argv[1:] = [] #Simulate --mongrel2-chroo not passed, assume "/"
+          self._reparse_options()
           _serve_request(wsgid, message, '/uploads/m2.84Yet4')
 
 
@@ -294,7 +300,6 @@ class WsgidTest(unittest.TestCase):
 
             wsgid = Wsgid(app = Mock(side_effect = Exception("Failed")))
             wsgid.log = Mock()
-            sys.argv[1:] = []
             message = self._create_fake_m2message('/uploads/m2.84Yet4')
             _serve_request(wsgid, message)
             mock_unlink.assert_called_with('/uploads/m2.84Yet4')
@@ -311,7 +316,6 @@ class WsgidTest(unittest.TestCase):
 
             wsgid = Wsgid(app = Mock(return_value = ['body response']))
             wsgid.log = Mock()
-            sys.argv[1:] = []
             message = self._create_fake_m2message('/uploads/m2.84Yet4')
             _serve_request(wsgid, message)
             self.assertEquals(1, wsgid.log.exception.call_count)
@@ -327,7 +331,6 @@ class WsgidTest(unittest.TestCase):
 
             wsgid = Wsgid(app = Mock(return_value = ['body response']))
             wsgid.log = Mock()
-            sys.argv[1:] = []
             message = Mock()
             message.headers = [] #It's not an upload message
             message.client_id = 'uuid'
@@ -335,6 +338,11 @@ class WsgidTest(unittest.TestCase):
             message.is_upload_done.return_value = False
             _serve_request(wsgid, message)
             self.assertEquals(0, mock_unlink.call_count)
+
+  def _reparse_options(self, *args):
+      sys.argv[1:] = args
+      conf.settings = None
+      parse_options()
 
   def _create_fake_m2message(self, async_upload_path):
         message = Mock()

@@ -5,6 +5,8 @@
 import unittest
 from wsgid.core import parser
 from wsgid.core.parser import CommandLineOption, BOOL, INT, STRING, LIST
+import wsgid.conf
+
 import sys
 import signal
 import platform
@@ -13,6 +15,10 @@ from mock import patch
 from wsgid.commands import *
 
 class ParserTest(unittest.TestCase):
+
+
+  def tearDown(self):
+      wsgid.conf.settings = None
 
   '''
     Test if we correctly parse options added by sub-commands
@@ -53,6 +59,31 @@ class ParserTest(unittest.TestCase):
       opts = parser.parse_options()
       self.assertEquals(1, opts.workers)
 
+  '''
+   Ensure we save the parsed options at wsgid.conf.settings
+  '''
+  def test_write_conf_settings(self):
+    sys.argv[1:] = ['--app-path=/tmp', '--debug', '--no-daemon']
+
+    self.assertTrue(wsgid.conf.settings is None)
+    opts = parser.parse_options()
+    self.assertTrue(wsgid.conf.settings is not None)
+    self.assertEquals('/tmp', wsgid.conf.settings.app_path)
+    self.assertTrue(wsgid.conf.settings.debug)
+    self.assertTrue(wsgid.conf.settings.no_daemon)
+
+  def test_no_parse_twice(self):
+    sys.argv[1:] = ['--app-path=/tmp', '--debug']
+
+    opts = parser.parse_options()
+    self.assertTrue(wsgid.conf.settings is not None)
+    self.assertEquals('/tmp', wsgid.conf.settings.app_path)
+    self.assertTrue(wsgid.conf.settings.debug)
+
+    sys.argv[1:] = ['--app-path=/tmp/2', '--debug', '--recv=tcp://127.0.0.1:9000']
+    parser.parse_options()
+    self.assertEquals(None, wsgid.conf.settings.recv)
+    self.assertEquals('/tmp', wsgid.conf.settings.app_path)
 
 
 
