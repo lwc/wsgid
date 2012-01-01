@@ -5,6 +5,8 @@
 import unittest
 from wsgid.core import parser
 from wsgid.core.parser import CommandLineOption, BOOL, INT, STRING, LIST
+import wsgid.conf
+
 import sys
 import signal
 import platform
@@ -53,8 +55,18 @@ class ParserTest(unittest.TestCase):
       opts = parser.parse_options()
       self.assertEquals(1, opts.workers)
 
+  '''
+   Ensure we save the parsed options at wsgid.conf.settings
+  '''
+  def test_write_conf_settings(self):
+    sys.argv[1:] = ['--app-path=/tmp', '--debug', '--no-daemon']
 
-
+    self.assertTrue(wsgid.conf.settings is None)
+    opts = parser.parse_options()
+    self.assertTrue(wsgid.conf.settings is not None)
+    self.assertEquals('/tmp', wsgid.conf.settings.app_path)
+    self.assertTrue(wsgid.conf.settings.debug)
+    self.assertTrue(wsgid.conf.settings.no_daemon)
 
 
 class CommandLineOptionTest(unittest.TestCase):
