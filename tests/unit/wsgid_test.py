@@ -6,6 +6,7 @@ import unittest
 import zmq
 from wsgid.core.wsgid import Wsgid
 from wsgid.core.message import Message
+import wsgid.conf as conf
 import sys
 
 from mock import patch, Mock, MagicMock
@@ -28,6 +29,7 @@ class WsgidTest(unittest.TestCase):
         }
   def tearDown(self):
     self.sample_headers = {}
+    conf.settings = None
 
   '''
    Creates the SCRIPT_NAME header from the mongrel2 PATTERN header.
@@ -260,6 +262,7 @@ class WsgidTest(unittest.TestCase):
 
           message = self._create_fake_m2message('/uploads/m2.84Yet4')
           _serve_request(wsgid, message, '/var/mongrel2/uploads/m2.84Yet4')
+          conf.settings = None #So options are parsed again
           sys.argv[1:] = [] #Simulate --mongrel2-chroo not passed, assume "/"
           _serve_request(wsgid, message, '/uploads/m2.84Yet4')
 

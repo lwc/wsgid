@@ -16,6 +16,10 @@ from wsgid.commands import *
 
 class ParserTest(unittest.TestCase):
 
+
+  def tearDown(self):
+      wsgid.conf.settings = None
+
   '''
     Test if we correctly parse options added by sub-commands
     --no-daemon is added by the config command
@@ -67,6 +71,21 @@ class ParserTest(unittest.TestCase):
     self.assertEquals('/tmp', wsgid.conf.settings.app_path)
     self.assertTrue(wsgid.conf.settings.debug)
     self.assertTrue(wsgid.conf.settings.no_daemon)
+
+  def test_no_parse_twice(self):
+    sys.argv[1:] = ['--app-path=/tmp', '--debug']
+
+    opts = parser.parse_options()
+    self.assertTrue(wsgid.conf.settings is not None)
+    self.assertEquals('/tmp', wsgid.conf.settings.app_path)
+    self.assertTrue(wsgid.conf.settings.debug)
+
+    sys.argv[1:] = ['--app-path=/tmp/2', '--debug', '--recv=tcp://127.0.0.1:9000']
+    parser.parse_options()
+    self.assertEquals(None, wsgid.conf.settings.recv)
+    self.assertEquals('/tmp', wsgid.conf.settings.app_path)
+
+
 
 
 class CommandLineOptionTest(unittest.TestCase):
