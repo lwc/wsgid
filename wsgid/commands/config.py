@@ -32,6 +32,7 @@ class CommandConfig(Plugin):
     self._override_if_not_none('no_daemon', cfg_values, options.no_daemon)
     self._override_if_not_none('recv', cfg_values, options.recv)
     self._override_if_not_none('send', cfg_values, options.send)
+    self._override_if_not_none('mongrel2_chroot', cfg_values, options.mongrel2_chroot)
 
     # Custom config command options
     cfg_values['debug'] = str((not options.no_debug))

@@ -2,6 +2,8 @@
 
 from .. import __version__, __progname__, __description__
 
+from .. import conf
+
 import os
 import argparse
 
@@ -102,9 +104,17 @@ def _create_core_options():
 
   add_option(name='send', \
       help="TCP socket used to return data to mongrel2. Format is IP:Port",\
-    dest="send")]
+    dest="send"),
+
+  add_option(name='mongrel2-chroot', \
+      help="This the chroot of your mongrel2 server. This value will be prepended to the temporary file create by\
+            mongrel2 when receiving big requests. This is needed to the async upload work correctly.",\
+      dest="mongrel2_chroot", default_value='/')]
 
 def parse_options(use_config = True):
+
+  if conf.settings: #Do not parse twice
+      return conf.settings
   options = _parse_args()
   options.app_path = _full_path(options.app_path)
   options.envs = {}
@@ -130,8 +140,11 @@ def parse_options(use_config = True):
       options.no_daemon = _return_str(json_cfg.setdefault('no_daemon', options.no_daemon))
       options.chroot = _return_bool(json_cfg.setdefault('chroot', options.chroot))
       options.stdout = _return_bool(json_cfg.setdefault('stdout', options.stdout))
+      options.mongrel2_chroot = _return_str(json_cfg.setdefault('mongrel2_chroot', options.mongrel2_chroot))
       options.envs = json_cfg.setdefault('envs', {})
 
+
+  conf.settings = options
   return options
 
 def _return_bool(option):

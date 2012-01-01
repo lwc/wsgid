@@ -95,6 +95,18 @@ keep-alive
 
 This option will make wsgid watch for its child processes. If any child process dies a new process is created immediately.
 
+.. _asyncupload:
+
+mongrel2-chroot
+***************
+
+.. versionadded:: 0.5.0
+
+This option is used if you want to take advantage of mongrel2's async upload. You can still support big requests without it, but you will have to set ``limits.content_length`` to a big value.
+
+Since mongrel2 creates all temporary files relative to it's chroot, each wsgid instance handling requests from any mongrel2 server instance must know where this server is chrooted. This is necessary because wsgid needs to prepend this chroot path to the path mongrel2 creates the files.
+
+If this option is not set, wsgid will use the original path provided by mongrel2.
 
 .. _json-config:
 

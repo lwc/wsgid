@@ -10,6 +10,7 @@ from wsgid.core.cli import Cli
 from wsgid.core import parser, WsgidApp
 from wsgid.commands import CommandInit
 from wsgid.test import fullpath, FakeOptions
+import wsgid.conf
 
 import daemon
 
@@ -34,6 +35,9 @@ class CliTest(unittest.TestCase):
     self.cli.options.app_path = self.fake_app_path
 
     CommandInit().run(FakeOptions(app_path=self.fake_app_path))
+
+  def tearDown(self):
+      wsgid.conf.settings = None
 
   def test_nodaemon(self):
     opts = self._parse()
