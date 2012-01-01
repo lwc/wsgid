@@ -9,6 +9,7 @@ Version 0.5.0
  * Feature: Now it's possible to load external django configuration that will be added to your application's settings module. See moreat :ref:`djangoconf`; 
  * --no-daemon option is now also saved in wsgid.json (using ``wsgid config`` command). If you were using ``nodaemon`` in your wsgid.json files, remember to change all references if ``nodaemon`` to ``no_daemon``.
  * Support for mongrel2 async upload mechanism. This adds a new command line option, ``--mongrel2-chroot``. Read more at: :ref:`asyncupload`. A brief tutorial about how to use this options is here: :ref:`asyncupload-tut`
+ * Implementation of a cached options ar wsgid.conf.settings. To use you just need: ``from wsgid.cong import settings``.
 
  * Commit log:  https://github.com/daltonmatos/wsgid/compare/v0.4.2...v0.5.0
 
