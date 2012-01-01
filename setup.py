@@ -16,7 +16,7 @@ setup(
   long_description=open('README.rst').read(),
   packages=['wsgid', 'wsgid/core', 'wsgid/commands', 'wsgid.loaders'],
   scripts=['scripts/wsgid'],
-  install_requires = ['plugnplay', 'pyzmq', 'python-daemon', 'simplejson', 'argparse'],
+  install_requires = ['plugnplay==0.2', 'pyzmq==2.1.10', 'python-daemon==1.6', 'simplejson==2.3.0', 'argparse==1.2.1'],
   classifiers = [
     "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
