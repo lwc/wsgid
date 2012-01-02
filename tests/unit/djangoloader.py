@@ -54,6 +54,21 @@ class DjangoLoaderTest(unittest.TestCase):
       djangoapp_path = os.path.join(FIXTURE, 'wsgidapp-noinit/app')
       self.assertFalse(self.app_loader.can_load(djangoapp_path))
 
+  def test_django_project_folder_added_to_sys_path(self):
+      with patch('sys.path') as mock_syspath:
+        with patch('os.listdir'):
+            dirs = ['mydjangoapp', 'otherdjangoapp']
+            os.listdir.return_value = dirs
+            self.assertTrue(self.app_loader.can_load(self.wsgid_appfolder_fullpath))
+
+            os.listdir.return_value = list(reversed(dirs))
+            self.app_loader.load_app(self.wsgid_appfolder_fullpath, 'appname')
+            self.assertEquals("mydjangoapp.settings", os.environ['DJANGO_SETTINGS_MODULE'])
+
+            djangoproject_folder = os.path.join(self.wsgid_appfolder_fullpath, 'mydjangoapp')
+            expected = [((self.wsgid_appfolder_fullpath,), {}), ((djangoproject_folder,), {})]
+            self.assertEquals(expected ,mock_syspath.append.call_args_list)
+
   '''
    Check if we return False for a non-django app folder
   '''

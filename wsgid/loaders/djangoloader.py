@@ -56,8 +56,12 @@ class DjangoAppLoader(Plugin):
     os.environ['DJANGO_SETTINGS_MODULE'] = '{0}.settings'.format(site_name)
     logger.debug("Using DJANGO_SETTINGS_MODULE = {0}".format(os.environ['DJANGO_SETTINGS_MODULE']))
 
+    new_syspath = os.path.join(app_path, site_name)
+
     logger.debug("Adding {0} to sys.path".format(app_path))
-    sys.path.insert(0, app_path)
+    sys.path.append(app_path)
+    logger.debug("Adding {0} to sys.path".format(new_syspath))
+    sys.path.append(new_syspath)
 
     # Here we force django to load the app settings
     settings._some_value = True
