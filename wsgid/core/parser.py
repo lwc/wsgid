@@ -109,7 +109,7 @@ def _create_core_options():
   add_option(name='mongrel2-chroot', \
       help="This the chroot of your mongrel2 server. This value will be prepended to the temporary file create by\
             mongrel2 when receiving big requests. This is needed to the async upload work correctly.",\
-      dest="mongrel2_chroot", default_value='/')]
+      dest="mongrel2_chroot")]
 
 def parse_options(use_config = True):
 
