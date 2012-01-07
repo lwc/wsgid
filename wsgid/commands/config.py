@@ -35,7 +35,8 @@ class CommandConfig(Plugin):
     self._override_if_not_none('mongrel2_chroot', cfg_values, options.mongrel2_chroot)
 
     # Custom config command options
-    cfg_values['debug'] = str((not options.no_debug))
+    if options.no_debug:
+        cfg_values['debug'] = str((not options.no_debug))
 
     # Rewrite the config file
     f.seek(0)
@@ -44,7 +45,7 @@ class CommandConfig(Plugin):
     f.close()
 
   def extra_options(self):
-    return [CommandLineOption(name='no-debug', help = 'Turns off debug option', type=BOOL),
+    return [CommandLineOption(name='no-debug', help = 'Turns off debug option', type=BOOL, default_value=None),
            CommandLineOption(name='no-keep-alive', help = 'Turns off Keep alive option', type=BOOL),
            CommandLineOption(name='no-chroot', help = 'Turns off Chroot option', type=BOOL)]
 
