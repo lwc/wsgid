@@ -1,7 +1,11 @@
 #encoding: utf-8
 
 from .. import __version__, __progname__, __description__
+
+from .. import conf
+
 import os
+import argparse
 
 from command import ICommand
 
@@ -13,50 +17,23 @@ TYPES = {INT: int,
          STRING: str}
 
 def _parse_args():
-  import platform
-  pyversion = platform.python_version()
-  if pyversion < '2.7':
-    optparser = _create_optparse(prog=__progname__, description=__description__,\
-                                      version= __version__)
-    (opts, args) = optparser.parse_args()
-    return opts
-  else:
-    import argparse
-    parser = argparse.ArgumentParser(prog=__progname__, description=__description__, version=__version__, conflict_handler='resolve' )
-    commands = ICommand.implementors()
-    for command in commands:
-      name = command.command_name()
-      option_group = parser.add_argument_group(description="Options added by the {0} subcommand".format(name))
-      # Add the custom command aditional options
-      for opt in command.extra_options():
-        option_group.add_argument(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
+  parser = argparse.ArgumentParser(prog=__progname__, description=__description__, version=__version__, conflict_handler='resolve' )
+  commands = ICommand.implementors()
+  for command in commands:
+    name = command.command_name()
+    option_group = parser.add_argument_group(description="Options added by the {0} subcommand".format(name))
+    # Add the custom command aditional options
+    for opt in command.extra_options():
+      option_group.add_argument(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
 
-    # Add wsgid core options
-    for opt in _create_core_options():
-      if opt.type is bool:
-        # We cannot pass type= when action is 'store_true', go figure!
-        parser.add_argument(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
-      else:
-        parser.add_argument(opt.name, help = opt.help, type=opt.type, dest = opt.dest, action = opt.action, default = opt.default_value)
-    return parser.parse_args()
-
-def _create_optparse(prog, description, version):
-    import optparse
-    optparser = optparse.OptionParser(prog=prog, description=description, version=version)
-    commands = ICommand.implementors()
-    for command in commands:
-      name = command.command_name()
-      option_group = optparse.OptionGroup(optparser, "Options added by the {0} subcommand".format(name))
-
-      # Add the custom command aditional options
-      for opt in command.extra_options():
-        option_group.add_option(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
-
-    for opt in _create_core_options():
-      optparser.add_option(opt.name, help = opt.help, \
-                           action = opt.action, \
-                           dest = opt.dest, default = opt.default_value)
-    return optparser
+  # Add wsgid core options
+  for opt in _create_core_options():
+    if opt.type is bool:
+      # We cannot pass type= when action is 'store_true', go figure!
+      parser.add_argument(opt.name, help = opt.help, dest = opt.dest, action = opt.action, default = opt.default_value)
+    else:
+      parser.add_argument(opt.name, help = opt.help, type=opt.type, dest = opt.dest, action = opt.action, default = opt.default_value)
+  return parser.parse_args()
 
 class CommandLineOption(object):
 
@@ -106,8 +83,11 @@ def _create_core_options():
   add_option('debug', help="Runs wsgid in debug mode. Lots of logging.",\
       dest="debug", type = BOOL),
 
+  add_option('stdout', help="Redirect all logs to stdout. Use this with --no-daemon to see the logs on the same terminal wsgid was started",\
+      dest="stdout", type = BOOL),
+
   add_option('no-daemon', help="Runs wsgid in the foreground, printing all logs to stderr",\
-      type=BOOL, dest="nodaemon"),
+      type=BOOL, dest="no_daemon"),
 
   add_option('workers', help="Starts a fixed number of wsgid processes. Defaults to 1",\
       type=INT, dest="workers", default_value = 1),
@@ -124,9 +104,17 @@ def _create_core_options():
 
   add_option(name='send', \
       help="TCP socket used to return data to mongrel2. Format is IP:Port",\
-    dest="send")]
+    dest="send"),
+
+  add_option(name='mongrel2-chroot', \
+      help="This the chroot of your mongrel2 server. This value will be prepended to the temporary file create by\
+            mongrel2 when receiving big requests. This is needed to the async upload work correctly.",\
+      dest="mongrel2_chroot")]
 
 def parse_options(use_config = True):
+
+  if conf.settings: #Do not parse twice
+      return conf.settings
   options = _parse_args()
   options.app_path = _full_path(options.app_path)
   options.envs = {}
@@ -149,10 +137,14 @@ def parse_options(use_config = True):
       options.workers = int(json_cfg.setdefault('workers', options.workers or 1))
       options.keep_alive = _return_bool(json_cfg.setdefault('keep_alive', options.keep_alive))
       options.wsgi_app = _return_str(json_cfg.setdefault('wsgi_app', options.wsgi_app))
-      options.nodaemon = _return_str(json_cfg.setdefault('nodaemon', options.nodaemon))
+      options.no_daemon = _return_str(json_cfg.setdefault('no_daemon', options.no_daemon))
       options.chroot = _return_bool(json_cfg.setdefault('chroot', options.chroot))
+      options.stdout = _return_bool(json_cfg.setdefault('stdout', options.stdout))
+      options.mongrel2_chroot = _return_str(json_cfg.setdefault('mongrel2_chroot', options.mongrel2_chroot))
       options.envs = json_cfg.setdefault('envs', {})
 
+
+  conf.settings = options
   return options
 
 def _return_bool(option):

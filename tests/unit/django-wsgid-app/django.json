@@ -1,0 +1,26 @@
+{
+  "MY_CUSTOM_SETTING": "other-value",
+  "DATABASES": {
+    "myotherdb": {
+      "ENGINE": "mysql",
+      "NAME": "mydb",
+      "USER": "user",
+      "PASSWORD": "passwd",
+      "HOST": "localhost",
+      "PORT": "3598"
+    }
+  },
+  "MY_HASH": {
+    "subhash": {
+      "k1": "new-v1",
+      "k2": "new-v2",
+      "k3": "new-v3"
+    }
+  },
+  "GENERIC_SETTING": {
+      "k": "v"
+  },
+  "MY_LIST_SETTING": ["one more"],
+  "NEW_SETTING": "a new value",
+  "TUPLE_SETTING": ["three"]
+}

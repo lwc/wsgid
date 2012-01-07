@@ -77,6 +77,12 @@ no-dameon
 
 Used mainly for debug purposes. When this option is passed wsgid will not fork to background and will write all logs to stderr.
 
+stdout
+******
+.. versionadded:: 0.5.0
+
+Redirect all log output to stdout. This is useful when you want to test things out. Use it with ``--no-daemon`` so you can see all log messages right on the you started wsgid.
+
 workers
 *******
   ``--workers=N``
@@ -89,6 +95,18 @@ keep-alive
 
 This option will make wsgid watch for its child processes. If any child process dies a new process is created immediately.
 
+.. _asyncupload:
+
+mongrel2-chroot
+***************
+
+.. versionadded:: 0.5.0
+
+This option is used if you want to take advantage of mongrel2's async upload. You can still support big requests without it, but you will have to set ``limits.content_length`` to a big value.
+
+Since mongrel2 creates all temporary files relative to it's chroot, each wsgid instance handling requests from any mongrel2 server instance must know where this server is chrooted. This is necessary because wsgid needs to prepend this chroot path to the path mongrel2 creates the files.
+
+If this option is not set, wsgid will use the original path provided by mongrel2.
 
 .. _json-config:
 
@@ -216,6 +234,21 @@ stop
 This command sends a SIGTERM signal to all your master processes. This will completely turn off your entire application, unless you are using some kind of supervisor. ::
 
     $ wsgid stop --app-path=/path/to/your/app
+
+status
+******
+
+.. versionadded:: 0.5.0
+
+This command reports on stdout the current status of your wsgid instances. Note that it will report "Stopped" even if you have a master process but no worker processes. This is because the master process does not respond to requests. ::
+
+    $ wsgid status --app-path=/path/to/your/app
+    Status: Running
+    Master pid(s): 17261
+    Worker pid(s): 9847(dead), 17262
+
+Any dead pid is reported as "(dead)".
+
 
 
 

@@ -1,6 +1,18 @@
 Changelog
 =========
 
+Version 0.5.0
+*************
+
+ * Implemented the ``status`` command. More at :ref:`commands`;
+ * New command line option: ``--stdout`` to redirect all logs to stdout;
+ * Feature: Now it's possible to load external django configuration that will be added to your application's settings module. See moreat :ref:`djangoconf`; 
+ * --no-daemon option is now also saved in wsgid.json (using ``wsgid config`` command). If you were using ``nodaemon`` in your wsgid.json files, remember to change all references of ``nodaemon`` to ``no_daemon``.
+ * Support for mongrel2 async upload mechanism. This adds a new command line option, ``--mongrel2-chroot``. Read more at: :ref:`asyncupload`. A brief tutorial about how to use this options is here: :ref:`asyncupload-tut`
+ * Implementation of a cached options at ``wsgid.conf.settings``. To use you just need: ``from wsgid.conf import settings``.
+ * Minor bugfixes.
+
+ * Commit log:  https://github.com/daltonmatos/wsgid/compare/v0.4.2...v0.5.0
 
 Version 0.4.2
 *************
@@ -9,13 +21,12 @@ Version 0.4.2
  
  * Commit log:  https://github.com/daltonmatos/wsgid/compare/v0.4.1...v0.4.2
 
- Version 0.4.1
+Version 0.4.1
 *************
 
  * Hotfix for bug #6, that was actually not solved.
  
  * Commit log:  https://github.com/daltonmatos/wsgid/compare/v0.4.0...v0.4.1
-
 
 Version 0.4.0
 *************

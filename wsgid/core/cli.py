@@ -61,16 +61,13 @@ class Cli(object):
         self._write_pid(os.getpid(), self.MASTER)
         self._load_plugins(options)
 
-        if options.nodaemon:
-          self._call_wsgid(options)
-        else:
-          self.workers = []
-          for worker in range(options.workers):
-            pid = self._create_worker(options)
-            self.workers.append(pid)
-          #Now we can register the master process SIGTERM handler
-          signal.signal(signal.SIGTERM, self._sigterm_handler)
-          self._wait_workers()
+        self.workers = []
+        for worker in range(options.workers):
+          pid = self._create_worker(options)
+          self.workers.append(pid)
+        #Now we can register the master process SIGTERM handler
+        signal.signal(signal.SIGTERM, self._sigterm_handler)
+        self._wait_workers()
     except Exception, e:
       import traceback
       exc = sys.exc_info()
@@ -130,19 +127,25 @@ class Cli(object):
 
   def _wait_workers(self):
     while True:
-      dead_worker = os.wait()
-      self.workers.remove(dead_worker[0])
-      self.log.info("Worker finished, pid={pid} retval={retval}".format(pid=dead_worker[0], retval=dead_worker[1]))
-      self._remove_pid(dead_worker[0], self.WORKER)
+      try:
+        dead_worker = os.wait()
+        self.workers.remove(dead_worker[0])
+        self.log.info("Worker finished, pid={pid} retval={retval}".format(pid=dead_worker[0], retval=dead_worker[1]))
+        self._remove_pid(dead_worker[0], self.WORKER)
 
-      if self.options.keep_alive:
-        new_worker = self._create_worker(self.options)
-        self.workers.append(new_worker)
-        self.log.debug("Current active workers={workers}".format(workers=self.workers))
-      if not self.workers:
-        self.log.debug("No more workers to wait for and no keep alive requested, exiting...")
+        if self.options.keep_alive:
+          new_worker = self._create_worker(self.options)
+          self.workers.append(new_worker)
+          self.log.debug("Current active workers={workers}".format(workers=self.workers))
+        if not self.workers:
+          self.log.debug("No more workers to wait for and no keep alive requested, exiting...")
+          self._remove_pid(os.getpid(), self.MASTER)
+          sys.exit(0)
+      except KeyboardInterrupt, k:
+        for worker in self.workers:
+          self._remove_pid(worker, self.WORKER)
         self._remove_pid(os.getpid(), self.MASTER)
-        sys.exit(0)
+        return
 
   def _load_plugins(self, options):
     if options.loader_dir:
@@ -150,11 +153,11 @@ class Cli(object):
       plugnplay.load_plugins()
 
   def _create_daemon_options(self, options):
-    daemon = {'detach_process': not options.nodaemon}
-    daemon.update({ 'stdin': sys.stdin, 
-                   'stdout': sys.stdout, 
+    daemon = {'detach_process': not options.no_daemon}
+    daemon.update({ 'stdin': sys.stdin,
+                   'stdout': sys.stdout,
                    'stderr': sys.stderr})
-    if options.nodaemon:
+    if options.no_daemon:
       # If we are not a daemon we must maintain the basic signal handlers
       daemon.update({'signal_map': {
           signal.SIGTTIN: signal.getsignal(signal.SIGTTIN),
@@ -227,8 +230,8 @@ class Cli(object):
 
     if options.chroot:
       log_path = os.path.join('/', 'logs/wsgid.log')
-    
-    if options.nodaemon:
+
+    if options.no_daemon and options.stdout:
       console = logging.StreamHandler()
     else:
       log_path = os.path.join(options.app_path or '/tmp', 'logs/wsgid.log')

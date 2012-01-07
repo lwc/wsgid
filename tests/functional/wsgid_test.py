@@ -24,7 +24,7 @@ class WsgidServeTest(unittest.TestCase):
     finally:
       self._kill_wsgid(pid)
 
-    
+
   '''
    Ensure that when the WSGI app returns ['Line1', 'Line2', ...]
    Wsgid joins all parts to build the complete body
@@ -91,11 +91,10 @@ class WsgidServeTest(unittest.TestCase):
     finally:
       self._kill_wsgid(pid)
 
-
   def _run_wsgid(self, app):
     def _serve(app):
-      w = Wsgid(app, 
-          'tcp://127.0.0.1:8889', 
+      w = Wsgid(app,
+          'tcp://127.0.0.1:8889',
           'tcp://127.0.0.1:8890')
       w.log = logging
       w.serve()
@@ -103,7 +102,7 @@ class WsgidServeTest(unittest.TestCase):
     p = multiprocessing.Process(target=_serve, args=(app,))
     p.start()
     return p.pid
-  
+
   def _kill_wsgid(self, pid):
     import os
     os.kill(pid, 15)

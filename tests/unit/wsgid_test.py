@@ -5,7 +5,12 @@ import unittest
 
 import zmq
 from wsgid.core.wsgid import Wsgid
+from wsgid.core.message import Message
+from wsgid.core.parser import parse_options
+import wsgid.conf as conf
 import sys
+
+from mock import patch, Mock, MagicMock
 
 class WsgidTest(unittest.TestCase):
 
@@ -23,8 +28,12 @@ class WsgidTest(unittest.TestCase):
           'content-type': 'text/plain',
           'x-forwarded-for': '127.0.0.1'
         }
+    sys.argv[1:] = []
+    parse_options()
+
   def tearDown(self):
     self.sample_headers = {}
+    conf.settings = None
 
   '''
    Creates the SCRIPT_NAME header from the mongrel2 PATTERN header.
@@ -77,7 +86,7 @@ class WsgidTest(unittest.TestCase):
     self.assertTrue(environ.has_key('REQUEST_METHOD'))
     self.assertEquals('GET', environ['REQUEST_METHOD'])
 
-  
+
   def test_environ_query_string(self):
     environ = self.wsgid._create_wsgi_environ(self.sample_headers)
     self.assertEquals("a=1&b=4&d=4", environ['QUERY_STRING'])
@@ -239,6 +248,110 @@ class WsgidTest(unittest.TestCase):
     self.assertEquals("http", environ['wsgi.url_scheme'])
     self.assertEquals(sys.stderr, environ['wsgi.errors'])
 
+  def test_join_m2_chroot_to_async_upload_path(self):
+      # The value in x-mongrel2-upload-{start,done} should be prepended with the
+      # value of --m2-chroot, passed on the command line
+      with patch('zmq.Context'):
+          def _serve_request(wsgid, m2message, expected_final_path):
+            with patch.object(wsgid, '_create_wsgi_environ'):
+                wsgid._create_wsgi_environ.return_value = {}
+                with patch("__builtin__.open") as mock_open:
+                    with patch('os.unlink'):
+                        wsgid._call_wsgi_app(message, Mock())
+                        self.assertEquals(1, mock_open.call_count)
+                        mock_open.assert_called_with(expected_final_path)
+
+          self._reparse_options('--mongrel2-chroot=/var/mongrel2')
+          wsgid = Wsgid(app = Mock(return_value=['body response']))
+
+          message = self._create_fake_m2message('/uploads/m2.84Yet4')
+          _serve_request(wsgid, message, '/var/mongrel2/uploads/m2.84Yet4')
+          self._reparse_options()
+          _serve_request(wsgid, message, '/uploads/m2.84Yet4')
+
+
+  def test_remove_async_file_after_request_finishes_ok(self):
+      # Since mongrel2 does not remove the originial temp file, wsgid
+      # must remove it after the request was successfully (or not) handled.
+      with patch('zmq.Context'):
+          with patch('os.unlink') as mock_unlink:
+            def _serve_request(wsgid, m2message):
+                with patch.object(wsgid, '_create_wsgi_environ'):
+                    wsgid._create_wsgi_environ.return_value = {}
+                    with patch("__builtin__.open") as mock_open:
+                        wsgid._call_wsgi_app(message, Mock())
+
+            wsgid = Wsgid(app = Mock(return_value=['body response']))
+
+            message = self._create_fake_m2message('/uploads/m2.84Yet4')
+            _serve_request(wsgid, message)
+            mock_unlink.assert_called_with('/uploads/m2.84Yet4')
+
+
+  def test_remove_async_file_after_failed_request(self):
+      # Even if the request failed, wsgid must remove the temporary file.
+       with patch('zmq.Context'):
+          with patch('os.unlink') as mock_unlink:
+            def _serve_request(wsgid, m2message):
+                with patch.object(wsgid, '_create_wsgi_environ'):
+                    wsgid._create_wsgi_environ.return_value = {}
+                    with patch("__builtin__.open") as mock_open:
+                        wsgid._call_wsgi_app(message, Mock())
+
+            wsgid = Wsgid(app = Mock(side_effect = Exception("Failed")))
+            wsgid.log = Mock()
+            message = self._create_fake_m2message('/uploads/m2.84Yet4')
+            _serve_request(wsgid, message)
+            mock_unlink.assert_called_with('/uploads/m2.84Yet4')
+
+  def test_protect_against_exception_on_file_removal(self):
+        with patch('zmq.Context'):
+          with patch('os.unlink') as mock_unlink:
+            mock_unlink.side_effect = OSError("File does not exist")
+            def _serve_request(wsgid, m2message):
+                with patch.object(wsgid, '_create_wsgi_environ'):
+                    wsgid._create_wsgi_environ.return_value = {}
+                    with patch("__builtin__.open") as mock_open:
+                        wsgid._call_wsgi_app(message, Mock())
+
+            wsgid = Wsgid(app = Mock(return_value = ['body response']))
+            wsgid.log = Mock()
+            message = self._create_fake_m2message('/uploads/m2.84Yet4')
+            _serve_request(wsgid, message)
+            self.assertEquals(1, wsgid.log.exception.call_count)
+
+  def test_do_not_try_to_remove_if_not_upload_request(self):
+         with patch('zmq.Context'):
+          with patch('os.unlink') as mock_unlink:
+            def _serve_request(wsgid, m2message):
+                with patch.object(wsgid, '_create_wsgi_environ'):
+                    wsgid._create_wsgi_environ.return_value = {}
+                    with patch("__builtin__.open") as mock_open:
+                        wsgid._call_wsgi_app(message, Mock())
+
+            wsgid = Wsgid(app = Mock(return_value = ['body response']))
+            wsgid.log = Mock()
+            message = Mock()
+            message.headers = [] #It's not an upload message
+            message.client_id = 'uuid'
+            message.server_id = '1'
+            message.is_upload_done.return_value = False
+            _serve_request(wsgid, message)
+            self.assertEquals(0, mock_unlink.call_count)
+
+  def _reparse_options(self, *args):
+      sys.argv[1:] = args
+      conf.settings = None
+      parse_options()
+
+  def _create_fake_m2message(self, async_upload_path):
+        message = Mock()
+        message.headers = {'x-mongrel2-upload-start': async_upload_path,
+                            'x-mongrel2-upload-done': async_upload_path}
+        message.async_upload_path = async_upload_path
+        message.server_id = 'uuid'
+        message.client_id = '42'
+        return message
 
 class WsgidReplyTest(unittest.TestCase):
 
