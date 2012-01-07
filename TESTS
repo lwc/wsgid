@@ -3,7 +3,8 @@
 == Running the test suite ==
 
  * Unit Tests
-   To run the unit tests just use the command: nosetests tests/unit/*.py
+   * Create the test/unix/fixtures folder
+   * To run the unit tests just use the command: nosetests tests/unit/*.py
  
  * Functional tests
    To be able do run functional tests you will need to start mongrel2. There is a ready configuration inside
