@@ -3,7 +3,10 @@
 
 from wsgid.loaders import IAppLoader
 from wsgid.core import Plugin, get_main_logger
-from django.conf import settings
+try:
+  from django.conf import settings
+except ImportError:
+  pass # Without django its unlikely anyone intends on using the DjangoAppLoader
 
 import os
 import sys
