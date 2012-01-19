@@ -5,6 +5,7 @@ import os
 from ..core import Plugin, get_main_logger
 import sys
 import logging
+import glob
 
 log = get_main_logger()
 
@@ -80,5 +81,19 @@ class PyRoutesLoader(Plugin):
     __import__(app_dir[0], fromlist='pyroutes_settings')
     import pyroutes
     return pyroutes.application
+
+
+class PasteLoader(Plugin):
+  implements = [IAppLoader]
+
+  def can_load(self, app_path):
+    return bool(glob.glob(os.path.join(app_path, '../*.ini')))
+
+  def load_app(self, app_path, app_full_name):
+    from paste.deploy import loadapp
+    logger = get_main_logger()
+    logger.debug("Using ini "+str(os.getenv('PASTE_INI_PATH')))
+    return loadapp('config:'+os.getenv('PASTE_INI_PATH'))
+
 
 import djangoloader
