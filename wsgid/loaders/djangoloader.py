@@ -3,10 +3,6 @@
 
 from wsgid.loaders import IAppLoader
 from wsgid.core import Plugin, get_main_logger
-try:
-  from django.conf import settings
-except ImportError:
-  pass # Without django its unlikely anyone intends on using the DjangoAppLoader
 
 import os
 import sys
@@ -48,6 +44,7 @@ class DjangoAppLoader(Plugin):
       return parsed
 
   def load_app(self, app_path, app_full_name = None):
+    from django.conf import settings
     logger = get_main_logger()
     # Since we receive here --app-path + app/, we need to remove the last part
     # because django.json lives in --app-path
